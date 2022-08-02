@@ -1,9 +1,14 @@
-import { Injectable } from '@angular/core';
+import { Injectable } from "@angular/core";
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable()
 export class SharedService {
+    private rnd: number;
+    constructor() {
+        this.rnd = Math.random();
+        console.warn("ShareService ctor", this.rnd);
+    }
 
-  constructor() { }
+    public log(from: string) {
+        console.log("Shared log", from, this.rnd);
+    }
 }
