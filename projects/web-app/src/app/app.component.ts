@@ -7,6 +7,7 @@ import { SharedService } from "@app/shared";
         <h1>Welcome to {{ title }}!</h1>
         <router-outlet></router-outlet>
         <!-- <lib-shared></lib-shared> -->
+        <app-try-plugin></app-try-plugin>
     `,
     styles: [],
 })
