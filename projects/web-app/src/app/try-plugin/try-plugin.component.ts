@@ -1,44 +1,101 @@
-import { AfterViewInit, Component, ElementRef, EventEmitter, Input, Output, ViewChild } from "@angular/core";
+import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, EventEmitter, Input, Output, ViewChild } from "@angular/core";
 import { CommonModule } from "@angular/common";
 declare var $: any;
-const UTC_FORMAT = "yy-mm-ddZ";
+const UTC_FORMAT = "@"; // "yy-mm-ddZ";
 type stringUTC = string;
 @Component({
     selector: "app-try-plugin",
     standalone: true,
     imports: [CommonModule],
-    template: ` <p>Date: <input type="text" id="sampleDTPicker" /></p>
-        <div class="flex">
+    template: `
+        <p>Date: <input type="text" id="sampleDTPicker" /></p>
+        <div>
+            <span>Model: {{ model }} <-> Value: {{ value }} &nbsp; </span>
             <input type="text" #inp (input)="parse()" />
-            <span>Date: {{ valueUTC }}<button id="show" (click)="dialog($event)">x</button></span>
-        </div>`,
+            <button id="show" (click)="dialog($event)">x</button>
+        </div>
+    `,
     styles: ["div { display: flex }"],
+    // changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class TryPluginComponent implements AfterViewInit {
+export class TryPluginComponent<D = Date | null, T = stringUTC | null, I = string> implements AfterViewInit {
     constructor() {
         console.log("on ctor", this.inp?.nativeElement ?? "NOT READY!");
     }
 
-    @Input() format = "dd/mm/yyyy";
-    @Input() set valueUTC(value: stringUTC) {
-        if (this._value != value) {
-            console.info("SET", value);
-            var date = $.datepicker.parseDate(UTC_FORMAT, value);
-            if (date != null) {
-                this._value = value;
-                this.valueUTCChange.emit(value);
-                setTimeout(() => (this.inp.nativeElement.value = $.datepicker.formatDate(this.format, date)));
-            }
+    @Input() set model(model: D) {
+        if (model === undefined) {
+            console.info("IGNORE MODEL NOT SET === undefined");
+            return;
+        }
+        if (this._model !== model) {
+            console.info("SET MODEL", model);
+            this._update(model, true, "model");
         } else {
-            console.info(value, "IS SAME");
+            console.info(model, "MODEL IS SAME");
         }
     }
-    get valueUTC(): stringUTC {
-        return this._value;
+    get model(): D {
+        return this._model!;
     }
-    private _value!: stringUTC;
-    private _onChange = (v: string) => this.valueUTCChange.emit(v);
-    @Output() valueUTCChange = new EventEmitter<string>();
+    private _model?: D;
+    @Output() modelChange = new EventEmitter<D>();
+
+    @Input() format = "dd/mm/yyyy";
+    @Input() set value(value: T) {
+        if (value === undefined) {
+            console.info("IGNORE MODEL NOT SET === undefined");
+            return;
+        }
+        if (this._value !== value) {
+            console.info("SET VALUE", value);
+            var model = value ? $.datepicker.parseDate(UTC_FORMAT, value) : null;
+            this._update(model, true, "value");
+            // if (D != null) {
+            //     this._value = value;
+            //     this.valueUTCChange.emit(value);
+            //     setTimeout(() => (this.inp.nativeElement.value = $.datepicker.formatDate(this.format, D)));
+            // }
+        } else {
+            console.info(value, "VALUE IS SAME");
+        }
+    }
+    get value(): T {
+        return this._value!;
+    }
+    @Output() valueChange = new EventEmitter<T>();
+    private _value?: T;
+
+    private _formatterFn = (model: D): I => $.datepicker.formatDate(this.format, model);
+    private _parserFn = (view: I): D | undefined => {
+        try {
+            return $.datepicker.parseDate(this.format, view);
+        } catch (err) {
+            // console.info("PARSING ERROR", err);
+            return undefined;
+        }
+    };
+    private _update(model: D | undefined, setinp: boolean = true, noemit: "" | "model" | "value" = "") {
+        if (model === undefined) return; //EVITO INIZIALIZZAZIONE SE VALORE NON SPECIFICATO
+        if (model === null) {
+            this._model = model; //null
+            this._value = null as any;
+        } else {
+            this._model = model;
+            this._value = $.datepicker.formatDate(UTC_FORMAT, model);
+        }
+        if (noemit != "model") {
+            console.info("EMIT model CHANGE");
+            this.modelChange.emit(model);
+        }
+        if (noemit != "value") {
+            console.info("EMIT value CHANGE");
+            this.valueChange.emit(this._value);
+        }
+        if (setinp) {
+            setTimeout(() => (this.inp.nativeElement.value = this._formatterFn(model)));
+        }
+    }
 
     ngOnChange() {
         console.log("on ngOnChange", this.inp?.nativeElement ?? "NOT READY!");
@@ -60,11 +117,14 @@ export class TryPluginComponent implements AfterViewInit {
 
     @ViewChild("inp", { read: ElementRef, static: true }) inp!: ElementRef;
     parse() {
-        var dateText = this.inp.nativeElement.value;
-        console.log(this.inp, "value", dateText);
-        var date = $.datepicker.parseDate(this.format, dateText);
-        if (date != null) {
-            this.valueUTC = $.datepicker.formatDate(UTC_FORMAT, date);
+        var inputText = this.inp.nativeElement.value;
+        console.log(this.inp, "INPUT.value", inputText);
+        var model = this._parserFn(inputText);
+        if (model != null) {
+            // this.valueUTC = $.datepicker.formatDate(UTC_FORMAT, D);
+            this._update(model, false, "");
+        } else if (!inputText) {
+            this._update(null as any, false, "");
         }
 
         //     $(this.inp.nativeElement)
@@ -86,12 +146,14 @@ export class TryPluginComponent implements AfterViewInit {
         console.log("$event", e);
         $(e.target).datepicker(
             "dialog",
-            this.valueUTC,
+            this.value,
             (...args: any[]) => {
                 console.log("OnSelect", args);
-                this.valueUTC = args[0]; //STRING FORMATTED
-                var date = $(args[1].input).datepicker("getDate");
-                console.log("model", date); //Date OBJECT LT
+                var model = $.datepicker.parseDate(UTC_FORMAT, args[0]); //STRING FORMATTED
+                var model = $(args[1].input).datepicker("getDate"); //D OBJECT LT
+                // this.valueUTC = args[0]; //STRING FORMATTED
+                this._update(model, true, "");
+                console.log("model", model);
             },
             { showButtonPanel: true, dateFormat: UTC_FORMAT, altField: this.inp.nativeElement, altFormat: this.format },
             [e.clientX, e.clientY]
