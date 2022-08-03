@@ -1,26 +1,47 @@
 import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, EventEmitter, Input, Output, ViewChild } from "@angular/core";
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
 import { CommonModule } from "@angular/common";
 declare var $: any;
-const UTC_FORMAT = "@"; // "yy-mm-ddZ";
+const UTC_FORMAT = "yy-mm-ddZ";
 type stringUTC = string;
 @Component({
-    selector: "app-try-plugin",
+    selector: "app-valacc-plugin",
     standalone: true,
     imports: [CommonModule],
     template: `
-        <p>Date: <input type="text" id="sampleDTPicker" /></p>
         <div>
-            <span>Model: {{ model }} <-> Value: {{ value }} &nbsp; </span>
             <input type="text" #inp (input)="parse()" />
-            <button id="show" (click)="dialog($event)">x</button>
+            <button id="show" (click)="dialog($event)">...</button>
+            <span>Model: {{ model }} <-> Value: {{ value }}</span>
         </div>
     `,
     styles: ["div { display: flex }"],
-    // changeDetection: ChangeDetectionStrategy.OnPush,
+    providers: [{ provide: NG_VALUE_ACCESSOR, useExisting: ValAccPluginComponent, multi: true }],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class TryPluginComponent<D = Date | null, T = stringUTC | null, I = string> implements AfterViewInit {
+export class ValAccPluginComponent<D = Date | null, T = stringUTC | null, I = string> implements AfterViewInit, ControlValueAccessor {
     constructor() {
         console.log("on ctor", this.inp?.nativeElement ?? "NOT READY!");
+    }
+    writeValue(value: any): void {
+        console.info("writeValue", value);
+        this.value = value;
+    }
+    private _OnChange?: (_: any) => void;
+    registerOnChange(fn: (_: any) => void): void {
+        console.info("registerOnChange", fn);
+        this._OnChange = fn;
+    }
+    private _OnTouhed?: () => void;
+    registerOnTouched(fn: () => void): void {
+        console.info("registerOnTouched", fn);
+        this._OnTouhed = fn;
+    }
+    private _disabled = false;
+    setDisabledState(isDisabled: boolean): void {
+        this._disabled = isDisabled;
+        console.info("setDisabledState", isDisabled);
+        $(this.inp.nativeElement).datepicker("option", "disabled", this._disabled);
     }
 
     @Input() set model(model: D) {
@@ -77,6 +98,7 @@ export class TryPluginComponent<D = Date | null, T = stringUTC | null, I = strin
     };
     private _update(model: D | undefined, setinp: boolean = true, noemit: "" | "model" | "value" = "") {
         if (model === undefined) return; //EVITO INIZIALIZZAZIONE SE VALORE NON SPECIFICATO
+        const changed = !!(this.model !== model);
         if (model === null) {
             this._model = model; //null
             this._value = null as any;
@@ -91,6 +113,14 @@ export class TryPluginComponent<D = Date | null, T = stringUTC | null, I = strin
         if (noemit != "value") {
             console.info("EMIT value CHANGE");
             this.valueChange.emit(this._value);
+        }
+        if (this._OnChange && changed) {
+            console.info("EMIT _OnChange", this._value);
+            this._OnChange(this._value);
+        }
+        if (this._OnTouhed && changed) {
+            console.info("EMIT _OnTouhed");
+            this._OnTouhed();
         }
         if (setinp) {
             setTimeout(() => (this.inp.nativeElement.value = this._formatterFn(model)));
