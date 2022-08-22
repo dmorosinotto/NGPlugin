@@ -1,13 +1,13 @@
-import { AnimateTimings } from "@angular/animations";
 import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
 import { SharedService } from "@app/shared";
+import { FormlyFieldConfig } from "@ngx-formly/core";
 
 @Component({
     selector: "app-root",
     template: `
         <h1>Welcome to {{ title }}!</h1>
-        <router-outlet></router-outlet>
+
         <!-- <lib-shared></lib-shared> -->
         <app-try-plugin [(value)]="birtday" [format]="'ITA dd/mm/yy'" [(model)]="bDate"></app-try-plugin>
         <h2>birtday: {{ birtday }}</h2>
@@ -20,7 +20,10 @@ import { SharedService } from "@app/shared";
             <label>BDAY: <app-valacc-plugin formControlName="bday" [(model)]="m.b"></app-valacc-plugin></label>
         </form>
         <label>FC: <app-valacc-plugin [formControl]="fc"></app-valacc-plugin></label>
-
+        <label>disabled=<input type="checkbox" (input)="toggleDisable()" /> {{ fc.disabled }} </label>
+        <hr />
+        <nav><a routerLink="/">HOME</a> | <a routerLink="formly">FORMLY</a></nav>
+        <router-outlet></router-outlet>
         <pre>
 frm={{ frm.value | json }}
 -----------------------
@@ -47,7 +50,13 @@ export class AppComponent {
     clearValue() {
         this.birtday = null;
     }
-
+    toggleDisable() {
+        if (this.fc.disabled) {
+            this.fc.enable();
+        } else {
+            this.fc.disable();
+        }
+    }
     public fc = new FormControl("1975-03-20Z");
     public frm = new FormGroup({
         data: new FormControl(),

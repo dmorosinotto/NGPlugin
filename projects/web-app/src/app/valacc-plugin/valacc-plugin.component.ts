@@ -180,7 +180,7 @@ export class ValAccPluginComponent<D = Date | null, T = stringUTC | null, I = st
             (...args: any[]) => {
                 console.log("OnSelect", args);
                 var model = $.datepicker.parseDate(UTC_FORMAT, args[0]); //STRING FORMATTED
-                var model = $(args[1].input).datepicker("getDate"); //D OBJECT LT
+                var model = $(args[1].input).datepicker("getDate"); //DATE OBJECT LT
                 // this.valueUTC = args[0]; //STRING FORMATTED
                 this._update(model, true, "");
                 console.log("model", model);
