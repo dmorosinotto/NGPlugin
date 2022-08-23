@@ -138,6 +138,68 @@
           }
         }
       }
+    },
+    "try-plugin": {
+      "projectType": "library",
+      "root": "projects/try-plugin",
+      "sourceRoot": "projects/try-plugin/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:ng-packagr",
+          "options": {
+            "project": "projects/try-plugin/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/try-plugin/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/try-plugin/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/try-plugin/src/test.ts",
+            "tsConfig": "projects/try-plugin/tsconfig.spec.json",
+            "karmaConfig": "projects/try-plugin/karma.conf.js"
+          }
+        }
+      }
+    },
+    "formly-custom": {
+      "projectType": "library",
+      "root": "projects/formly-custom",
+      "sourceRoot": "projects/formly-custom/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:ng-packagr",
+          "options": {
+            "project": "projects/formly-custom/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/formly-custom/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/formly-custom/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/formly-custom/src/test.ts",
+            "tsConfig": "projects/formly-custom/tsconfig.spec.json",
+            "karmaConfig": "projects/formly-custom/karma.conf.js"
+          }
+        }
+      }
     }
   }
 }

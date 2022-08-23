@@ -1,12 +1,12 @@
 import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, EventEmitter, Input, Output, ViewChild } from "@angular/core";
-import { CommonModule } from "@angular/common";
+
 declare var $: any;
 const UTC_FORMAT = "@"; // "yy-mm-ddZ";
 type stringUTC = string;
 @Component({
     selector: "app-try-plugin",
-    standalone: true,
-    imports: [CommonModule],
+    // standalone: true,
+    // imports: [CommonModule],
     template: `
         <p>Date: <input type="text" id="sampleDTPicker" /></p>
         <div>

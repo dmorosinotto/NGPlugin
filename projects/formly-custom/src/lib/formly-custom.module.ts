@@ -1,6 +1,7 @@
 import { NgModule } from "@angular/core";
 import { ReactiveFormsModule, Validators } from "@angular/forms";
 import { FormlyModule } from "@ngx-formly/core";
+
 import { FormlyFieldDate } from "./fields/field-date.component";
 import { FormlyFieldText } from "./fields/field-text.component";
 import { FormlyWrapperPanel } from "./fields/wrapper-panel.component";

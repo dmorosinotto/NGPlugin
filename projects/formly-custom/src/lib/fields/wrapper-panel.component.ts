@@ -1,5 +1,6 @@
 import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component } from "@angular/core";
+
 import { FieldWrapper, FormlyFieldConfig, FormlyFieldProps, FormlyModule } from "@ngx-formly/core";
 
 @Component({
@@ -13,12 +14,12 @@ import { FieldWrapper, FormlyFieldConfig, FormlyFieldProps, FormlyModule } from 
                 <span *ngIf="props.required" aria-hidden="true">*</span>
             </label>
             <ng-container #fieldComponent></ng-container>
-            <div *ngIf="showError" class="validerror" [style.display]="'block'">
+            <div *ngIf="showError" class="validerror">
                 <formly-validation-message [field]="field"></formly-validation-message>
             </div>
         </div>
     `,
-    styles: [".panel { display: flex } ", ".validerror { color: red }"],
+    styles: [".panel { display: flex; flex-wrap: wrap; } ", ".validerror { color: red; flex-basis: 100%; }"],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FormlyWrapperPanel extends FieldWrapper<FormlyFieldConfig<FormlyFieldProps>> {}

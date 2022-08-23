@@ -1,11 +1,11 @@
 import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { CommonModule } from "@angular/common";
-import { TryPluginComponent } from "../../try-plugin/try-plugin.component";
+import { TryPluginModule } from "@app/try-plugin";
 
 @Component({
     selector: "app-plugin-page",
     standalone: true,
-    imports: [CommonModule, TryPluginComponent],
+    imports: [CommonModule, TryPluginModule],
     template: `
         <p>plugin-page works!</p>
         <p>uso <u>app-try-plugin</u> per inglobare JQUERY con <b>format</b> + <i>[(two-way)]</i> binding su <b>value</b> e <b>model</b></p>

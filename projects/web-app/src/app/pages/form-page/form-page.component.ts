@@ -1,7 +1,7 @@
 import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { ReactiveFormsModule, FormGroup, FormControl } from "@angular/forms";
-import { ValAccPluginComponent } from "../../try-plugin/valacc-plugin.component";
+import { ValAccPluginComponent } from "@app/try-plugin";
 
 @Component({
     selector: "app-form-page",

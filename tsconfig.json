@@ -18,7 +18,11 @@
         "importHelpers": true,
         "paths": {
             "@app/shared": ["projects/shared/src/public-api.ts"],
-            "shared": ["dist/shared"]
+            "shared": ["dist/shared"],
+            "@app/try-plugin": ["projects/try-plugin/src/public-api.ts"],
+            "try-plugin": ["dist/try-plugin"],
+            "@app/formly-custom": ["projects/formly-custom/src/public-api.ts"],
+            "formly-custom": ["dist/formly-custom"]
         },
         "target": "es2020",
         "module": "es2020",

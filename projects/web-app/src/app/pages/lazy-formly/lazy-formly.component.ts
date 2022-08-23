@@ -34,9 +34,13 @@ export class LazyFormlyComponent {
     public form = new FormGroup({});
     public model = {
         email: "Ciao@pippo.it",
-        dpick: "1975-03-20Z",
+        from: "1975-03-20Z",
     };
-    public state = { m: {} };
+    public state = {
+        lookup: {
+            to: new Date(2022, 8 - 1, 15),
+        },
+    };
     public options: FormlyFormOptions = { formState: this.state };
     public fields: FormlyFieldConfig[] = [
         {
@@ -52,12 +56,21 @@ export class LazyFormlyComponent {
             },
         },
         {
-            key: "dpick",
+            key: "from",
             type: "date",
             templateOptions: {
-                label: "Date picker",
+                label: "From date",
                 format: "ITA dd/MM/yy",
                 // required: true,
+            },
+        },
+        {
+            key: "to",
+            type: "date",
+            templateOptions: {
+                label: "To picker",
+                // format: "dd/mm/yy",
+                required: true,
             },
         },
     ];
