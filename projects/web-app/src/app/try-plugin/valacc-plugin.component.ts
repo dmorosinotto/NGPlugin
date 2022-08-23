@@ -11,7 +11,7 @@ type stringUTC = string;
     template: `
         <div>
             <input type="text" #inp (input)="parse()" />
-            <button id="show" (click)="dialog($event)">...</button>
+            <button type="button" id="show" (click)="dialog($event)">...</button>
             <span>Model: {{ model }} <-> Value: {{ value }}</span>
         </div>
     `,

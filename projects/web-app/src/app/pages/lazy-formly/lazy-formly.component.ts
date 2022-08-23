@@ -1,7 +1,7 @@
 import { CommonModule } from "@angular/common";
 import { Component } from "@angular/core";
 import { ReactiveFormsModule, FormGroup } from "@angular/forms";
-import { FormlyModule, FormlyFieldConfig } from "@ngx-formly/core";
+import { FormlyModule, FormlyFieldConfig, FormlyFormOptions } from "@ngx-formly/core";
 
 @Component({
     selector: "app-lazy-formly",
@@ -9,8 +9,12 @@ import { FormlyModule, FormlyFieldConfig } from "@ngx-formly/core";
     imports: [CommonModule, ReactiveFormsModule, FormlyModule],
     template: `
         <p>lazy-formly works!</p>
+        <p>
+            uso <b>formly-custom</b> per registare types: <i>text</i> e <i>date</i> che usa <u>valacc-plugin</u> ossia custom
+            NG_VALUE_ACCESSOR per interagire con formly [FormControl]
+        </p>
         <form [formGroup]="form" (ngSubmit)="onSubmit(model)">
-            <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
+            <formly-form [form]="form" [fields]="fields" [model]="model" [options]="options"></formly-form>
             <button type="submit" [style.color]="form.invalid ? 'red' : 'black'">Submit</button>
         </form>
         <pre>
@@ -18,9 +22,11 @@ FORMLY
 form={{ form.value | json }}
 valid={{ form.valid }}
 model={{ model | json }}
+state={{ state | json }}
 </pre>
     `,
-    styles: [":host { display: block;  background-color: lightyellow; padding: 10px; border: 1px solid gray }"],
+    styles: [":host {  background-color: lightyellow; }"],
+    host: { class: "box" },
 })
 export class LazyFormlyComponent {
     constructor() {}
@@ -30,6 +36,8 @@ export class LazyFormlyComponent {
         email: "Ciao@pippo.it",
         dpick: "1975-03-20Z",
     };
+    public state = { m: {} };
+    public options: FormlyFormOptions = { formState: this.state };
     public fields: FormlyFieldConfig[] = [
         {
             key: "email",
@@ -48,6 +56,7 @@ export class LazyFormlyComponent {
             type: "date",
             templateOptions: {
                 label: "Date picker",
+                format: "ITA dd/MM/yy",
                 // required: true,
             },
         },

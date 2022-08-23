@@ -1,1 +1,3 @@
 /* You can add global styles to this file, and also import other style files */
+.box { display: block; padding: 10px; border: 1px solid gray }
+.box p { font-size: 1.6rem}
