@@ -137,12 +137,12 @@ export class ValAccPluginComponent<D = Date | null, T = stringUTC | null, I = st
 
     ngAfterViewInit(): void {
         console.log("on ngAfterViewInit", this.inp?.nativeElement ?? "NOT READY!");
-        // $(function () {
-        $("#sampleDTPicker").datepicker({ showButtonPanel: true, showOn: "button", dateFormat: this.format });
-        var str = $.datepicker.formatDate("yy-mm-dd", new Date(1975, 3 - 1, 20)); //LOCALTIME
-        var d = $.datepicker.parseDate("yy-mm-dd", str); //LOCALTIME
-        console.log("format", str, "parse", d, "UTC", d.toISOString());
-        // });
+        //$(function () {
+        //  $("#sampleDTPicker").datepicker({ showButtonPanel: true, showOn: "button", dateFormat: this.format });
+        //  var str = $.datepicker.formatDate("yy-mm-dd", new Date(1975, 3 - 1, 20)); //LOCALTIME
+        //  var d = $.datepicker.parseDate("yy-mm-dd", str); //LOCALTIME
+        //  console.log("format", str, "parse", d, "UTC", d.toISOString());
+        //});
     }
 
     @ViewChild("inp", { read: ElementRef, static: true }) inp!: ElementRef;

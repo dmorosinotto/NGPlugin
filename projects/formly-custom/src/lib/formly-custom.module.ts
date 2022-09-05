@@ -10,9 +10,9 @@ import { FormlyWrapperPanel } from "./fields/wrapper-panel.component";
     imports: [
         //CONFIGURO FORMLY
         ReactiveFormsModule,
-        FormlyFieldText,
-        FormlyFieldDate,
-        FormlyWrapperPanel,
+        // FormlyFieldText,
+        // FormlyFieldDate,
+        // FormlyWrapperPanel,
         FormlyModule.forRoot({
             wrappers: [{ name: "panel", component: FormlyWrapperPanel }],
             types: [
