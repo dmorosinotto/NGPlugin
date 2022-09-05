@@ -1,11 +1,11 @@
 import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { CommonModule } from "@angular/common";
-import { TryPluginModule } from "@app/try-plugin";
+import { TryGenericLookupComponent, TryPluginModule } from "@app/try-plugin";
 
 @Component({
     selector: "app-plugin-page",
     standalone: true,
-    imports: [CommonModule, TryPluginModule],
+    imports: [CommonModule, TryPluginModule, TryGenericLookupComponent],
     template: `
         <p>plugin-page works!</p>
         <p>uso <u>app-try-plugin</u> per inglobare JQUERY con <b>format</b> + <i>[(two-way)]</i> binding su <b>value</b> e <b>model</b></p>
@@ -14,6 +14,9 @@ import { TryPluginModule } from "@app/try-plugin";
         <h3>bDate: {{ bDate }}</h3>
         <button (click)="compleanno()">INIT MODEL</button>
         <button (click)="clearValue()">CLEAR</button>
+        <hr />
+        <p>uso <u>try-generic-lookup</u> per provare plugin JQUERY NAITEC: <i>genericLookup</i></p>
+        <try-generic-lookup></try-generic-lookup>
     `,
     styles: [":host { background-color: lightcyan; }"],
     host: { class: "box" },

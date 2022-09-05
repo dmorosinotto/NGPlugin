@@ -1,0 +1,44 @@
+{
+    "/js/jquery_genericLookup_js": {
+        "target": "http://acdmportal-client.testdom.local",
+        "secure": false,
+        "changeOrigin": true,
+        "logLevel": "debug",
+        "pathRewrite": {
+            "^/js/jquery_genericLookup_js": "http://acdmportal-client.testdom.local/js/jquery_genericLookup_js"
+        }
+    },
+    "/Lookup/*": {
+        "target": "http://acdmportal-client.testdom.local",
+        "secure": false,
+        "changeOrigin": true,
+        "logLevel": "debug",
+        "pathRewrite": {
+            "^/Lookup": "http://acdmportal-client.testdom.local/Lookup"
+        }
+    },
+    "/nginit": {
+        "target": "http://acdmportal-client.testdom.local/fakenginit",
+        "secure": false,
+        "changeOrigin": true,
+        "pathRewrite": {
+            "^/nginit": ""
+        }
+    },
+    "/api/backofficeapi/CallAPI": {
+        "target": "http://acdmportal-client.testdom.local",
+        "secure": false,
+        "changeOrigin": true,
+        "pathRewrite": {
+            "^/api/backofficeapi/CallAPI": "http://acdmportal-client.testdom.local/api/backofficeapi/CallAPI"
+        }
+    },
+    "/api/backofficeapi/Logout": {
+        "target": "http://acdmportal-client.testdom.local",
+        "secure": false,
+        "changeOrigin": true,
+        "pathRewrite": {
+            "^/api/backofficeapi/CallAPI": "http://acdmportal-client.testdom.local/api/backofficeapi/Logout"
+        }
+    }
+}
