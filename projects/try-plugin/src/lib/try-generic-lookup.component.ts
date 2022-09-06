@@ -1,28 +1,32 @@
+import { CommonModule } from "@angular/common";
 import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, EventEmitter, Input, Output, ViewChild } from "@angular/core";
 
 declare var $: any;
 @Component({
     selector: "try-generic-lookup",
     standalone: true,
-    // imports: [CommonModule],
+    imports: [CommonModule],
     template: `
         <form>
             <fieldset>
                 <label>Prova con #ID:</label>
-                <input type="text" id="txt" /><button type="button" id="btn">...</button>
-                <input type="text" id="hid" value="101" />
+                <input type="text" id="lookupTxt" /><button type="button" id="lookupBtn">...</button>
+                <input type="text" id="lookupHid" value="101" />
             </fieldset>
             <fieldset>
                 <label>Prova con #NG nativeElement:</label>
                 <input type="text" #txt /><button type="button" #btn>...</button>
-                <input type="text" #hid value="100" />
+                <input type="hidden" #hid />
+            </fieldset>
+            <fieldset>
+                <span>Model: {{ model | json }} <-> Value: {{ value }}</span>
             </fieldset>
         </form>
     `,
     styles: ["form { background-color: lightblue; padding: 10px }", "fieldset { display: flex; }"],
-    changeDetection: ChangeDetectionStrategy.OnPush,
+    // changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class TryGenericLookupComponent<D = Date | null, T = string | null, I = string> implements AfterViewInit {
+export class TryGenericLookupComponent<T = any> implements AfterViewInit {
     @ViewChild("txt", { read: ElementRef, static: true }) txt!: ElementRef;
     @ViewChild("btn", { read: ElementRef, static: true }) btn!: ElementRef;
     @ViewChild("hid", { read: ElementRef, static: true }) hid!: ElementRef;
@@ -31,51 +35,132 @@ export class TryGenericLookupComponent<D = Date | null, T = string | null, I = s
         console.log("on ctor", this.txt?.nativeElement ?? "NOT READY!");
     }
 
-    @Input() set model(model: D) {
+    ngOnChange() {
+        console.log("on ngOnChange", this.txt?.nativeElement ?? "NOT READY!");
+    }
+
+    ngOnInit() {
+        console.log("on ngOnInit", this.txt?.nativeElement ?? "NOT READY!");
+    }
+
+    ngAfterViewInit(): void {
+        console.log("on ngAfterViewInit", this.txt?.nativeElement ?? "NOT READY!");
+        console.log("on ngAfterViewInit CURRENT", this.type, this.idField);
+        //$(function () {
+        $("#lookupTxt").genericLookup({
+            type: "Aircraft",
+            button: "#lookupBtn",
+            hiddenControl: "#lookupHid",
+            //remote: true,
+            idField: "Aircraft_Sub_Iata",
+            //idField: function (...args) { console.log("idField->", args); var o=args[0]; return `${o.Aircraft_Sub_Iata},${o.Seats},${o.Mtow}`  },
+            autocomplete: true,
+            autocompleteOnLoad: true,
+            pageSize: 5,
+            selectedElement: function (o: any) {
+                console.warn("selectedElement ->", o, "ID=", $("#lookupHid").val());
+                var formatter = function (o: any) {
+                    return (o && `${o.Aircraft_Icao} (${o.Aircraft_Sub_Iata}) - ${o.Description}`) || "";
+                };
+                $("#lookupTxt").val(formatter(o));
+            },
+        });
+
+        $(this.txt.nativeElement).genericLookup({
+            type: this.type,
+            button: $(this.btn.nativeElement),
+            hiddenControl: $(this.hid.nativeElement),
+            //remote: true,
+            idField: (model: T | null) => {
+                const val = this._hidFn(model);
+                console.warn("idField nativeElement ->", model, val);
+                this.value = val; //this._hidFn(model);
+                console.info("idField after ID=", val, " <-> ", $(this.hid.nativeElement).val());
+            },
+            autocomplete: true,
+            autocompleteOnLoad: true,
+            pageSize: 5,
+            selectedElement: (model: T | null) => {
+                console.warn("selectedElement nativeElement ->", model, "ID=", $(this.hid.nativeElement).val());
+                $(this.txt.nativeElement).val(this._txtFn(model));
+                this.model = model;
+            },
+        });
+
+        //});
+    }
+
+    @Input() pageSize: number = 5;
+    @Input() type: string = "Aircraft";
+    @Input() idField: string = "Aircraft_Sub_Iata";
+
+    @Input() set model(model: T | null) {
         if (model === undefined) {
             console.info("IGNORE MODEL NOT SET === undefined");
             return;
         }
         if (this._model !== model) {
             console.info("SET MODEL", model);
-            this._update(model, true, "model");
+            this._model = model;
+            // this._update(model, true, "model");
+            console.info("EMIT model CHANGE");
+            this.modelChange.emit(this._model);
         } else {
             console.info(model, "MODEL IS SAME");
         }
     }
-    get model(): D {
+    get model(): T | null {
         return this._model!;
     }
-    private _model?: D;
-    @Output() modelChange = new EventEmitter<D>();
+    private _model?: T | null;
+    @Output() modelChange = new EventEmitter<T | null>();
 
-    @Input() format = "dd/mm/yy";
-    @Input() set value(value: T) {
+    @Input() set value(value: string | null) {
         if (value === undefined) {
-            console.info("IGNORE MODEL NOT SET === undefined");
+            console.info("IGNORE VALUE NOT SET === undefined");
             return;
         }
         if (this._value !== value) {
             console.info("SET VALUE", value);
-            var model = value ? $.datepicker.parseDate("UTC_FORMAT", value) : null;
-            this._update(model, true, "value");
-            // if (D != null) {
-            //     this._value = value;
-            //     this.valueUTCChange.emit(value);
-            //     setTimeout(() => (this.inp.nativeElement.value = $.datepicker.formatDate(this.format, D)));
-            // }
+            this._value = value;
+            $(this.hid.nativeElement).val(value);
+            // this.hid.nativeElement.value = value;
+            console.info("EMIT value CHANGE");
+            this.valueChange.emit(this._value);
+            // var model = value ? $.datepicker.parseDate("UTC_FORMAT", value) : null;
+            // this._update(model, true, "value");
         } else {
             console.info(value, "VALUE IS SAME");
         }
     }
-    get value(): T {
+    get value(): string | null {
         return this._value!;
     }
-    @Output() valueChange = new EventEmitter<T>();
-    private _value?: T;
+    @Output() valueChange = new EventEmitter<string | null>();
+    private _value?: string | null;
 
-    private _formatterFn = (model: D): I => $.datepicker.formatDate(this.format, model);
-    private _parserFn = (view: I): D | undefined => {
+    private _txtFn = (model: T | null): string => {
+        if (model == null) return "";
+        else {
+            const m: any = model;
+            return `${m.Aircraft_Icao} (${m.Aircraft_Sub_Iata}) - ${m.Description}`;
+        }
+    };
+    private _hidFn = (model: T | null): string | null => {
+        if (model == null) return null as string | null;
+        const m: any = model;
+        return `${m.Aircraft_Sub_Iata}` as string | null;
+    };
+    /*
+    @Input() format = "@"
+    private _formatterFn = (model: M): string => {
+        if (model == null) return "" ;
+        else {
+            const m: any = model;
+            return `${m.Aircraft_Icao} (${m.Aircraft_Sub_Iata}) - ${m.Description}`;
+        }
+    };
+    private _parserFn = (view: string): M| undefined => {
         try {
             return $.datepicker.parseDate(this.format, view);
         } catch (err) {
@@ -83,7 +168,7 @@ export class TryGenericLookupComponent<D = Date | null, T = string | null, I = s
             return undefined;
         }
     };
-    private _update(model: D | undefined, setinp: boolean = true, noemit: "" | "model" | "value" = "") {
+    private _update(model: M | undefined, setinp: boolean = true, noemit: "" | "model" | "value" = "") {
         if (model === undefined) return; //EVITO INIZIALIZZAZIONE SE VALORE NON SPECIFICATO
         if (model === null) {
             this._model = model; //null
@@ -103,55 +188,6 @@ export class TryGenericLookupComponent<D = Date | null, T = string | null, I = s
         if (setinp) {
             setTimeout(() => (this.txt.nativeElement.value = this._formatterFn(model)));
         }
-    }
-
-    ngOnChange() {
-        console.log("on ngOnChange", this.txt?.nativeElement ?? "NOT READY!");
-    }
-
-    ngOnInit() {
-        console.log("on ngOnInit", this.txt?.nativeElement ?? "NOT READY!");
-    }
-
-    ngAfterViewInit(): void {
-        console.log("on ngAfterViewInit", this.txt?.nativeElement ?? "NOT READY!");
-        //$(function () {
-        var formatter = function (o: any) {
-            return (o && `${o.Aircraft_Icao} (${o.Aircraft_Sub_Iata})- ${o.Description}`) || "";
-        };
-        $("#txt").genericLookup({
-            type: "Aircraft",
-            button: "#btn",
-            hiddenControl: "#hid",
-            //remote: true,
-            idField: "Aircraft_Sub_Iata",
-            //idField: function (...args) { console.log("idField->", args); var o=args[0]; return `${o.Aircraft_Sub_Iata},${o.Seats},${o.Mtow}`  },
-            autocomplete: true,
-            autocompleteOnLoad: true,
-            pageSize: 5,
-            selectedElement: function (o: any) {
-                console.warn("selectedElement ->", o, "ID=", $("#hid").val());
-                $("#txt").val(formatter(o));
-            },
-        });
-
-        $(this.txt.nativeElement).genericLookup({
-            type: "Aircraft",
-            button: $(this.btn.nativeElement),
-            hiddenControl: $(this.hid.nativeElement),
-            //remote: true,
-            idField: "Aircraft_Sub_Iata",
-            //idField: function (...args) { console.log("idField->", args); var o=args[0]; return `${o.Aircraft_Sub_Iata},${o.Seats},${o.Mtow}`  },
-            autocomplete: true,
-            autocompleteOnLoad: true,
-            pageSize: 5,
-            selectedElement: (o: any) => {
-                console.warn("selectedElement nativeElement ->", o, "ID=", $(this.hid.nativeElement).val());
-                $(this.txt.nativeElement).val(formatter(o));
-            },
-        });
-
-        //});
     }
 
     parse() {
@@ -197,4 +233,5 @@ export class TryGenericLookupComponent<D = Date | null, T = string | null, I = s
             [e.clientX, e.clientY]
         );
     }
+*/
 }

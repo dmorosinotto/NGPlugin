@@ -16,7 +16,12 @@ import { TryGenericLookupComponent, TryPluginModule } from "@app/try-plugin";
         <button (click)="clearValue()">CLEAR</button>
         <hr />
         <p>uso <u>try-generic-lookup</u> per provare plugin JQUERY NAITEC: <i>genericLookup</i></p>
-        <try-generic-lookup></try-generic-lookup>
+        <try-generic-lookup [(model)]="aircraft" [(value)]="idair"></try-generic-lookup>
+        <pre>
+            IDAIR = {{ idair }}
+            aircraft = {{ aircraft | json }}
+        </pre
+        >
     `,
     styles: [":host { background-color: lightcyan; }"],
     host: { class: "box" },
@@ -32,4 +37,6 @@ export class PluginPageComponent {
     clearValue() {
         this.birtday = null;
     }
+    idair: string | null = "100";
+    aircraft: any;
 }
