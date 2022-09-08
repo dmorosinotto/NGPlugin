@@ -16,7 +16,7 @@ declare var $: any;
             <fieldset>
                 <label>Prova con #NG nativeElement:</label>
                 <input type="text" #txt /><button type="button" #btn>...</button>
-                <input type="hidden" #hid />
+                <input type="hidden" #hid [value]="value" />
             </fieldset>
             <fieldset>
                 <span>Model: {{ model | json }} <-> Value: {{ value }}</span>
@@ -26,10 +26,11 @@ declare var $: any;
     styles: ["form { background-color: lightblue; padding: 10px }", "fieldset { display: flex; }"],
     // changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class TryGenericLookupComponent<T = any> implements AfterViewInit {
+export class TryGenericLookupComponent<M = any | null, I = string | null, T = string> implements AfterViewInit {
     @ViewChild("txt", { read: ElementRef, static: true }) txt!: ElementRef;
     @ViewChild("btn", { read: ElementRef, static: true }) btn!: ElementRef;
     @ViewChild("hid", { read: ElementRef, static: true }) hid!: ElementRef;
+    private init: any;
 
     constructor() {
         console.log("on ctor", this.txt?.nativeElement ?? "NOT READY!");
@@ -45,7 +46,7 @@ export class TryGenericLookupComponent<T = any> implements AfterViewInit {
 
     ngAfterViewInit(): void {
         console.log("on ngAfterViewInit", this.txt?.nativeElement ?? "NOT READY!");
-        console.log("on ngAfterViewInit CURRENT", this.type, this.idField);
+        console.info("on ngAfterViewInit CURRENT", this.type, this.idField);
         //$(function () {
         $("#lookupTxt").genericLookup({
             type: "Aircraft",
@@ -66,117 +67,103 @@ export class TryGenericLookupComponent<T = any> implements AfterViewInit {
             },
         });
 
-        $(this.txt.nativeElement).genericLookup({
+        this.init = $(this.txt.nativeElement).genericLookup({
             type: this.type,
             button: $(this.btn.nativeElement),
             hiddenControl: $(this.hid.nativeElement),
-            //remote: true,
-            idField: (model: T | null) => {
-                const val = this._hidFn(model);
-                console.warn("idField nativeElement ->", model, val);
-                this.value = val; //this._hidFn(model);
-                console.info("idField after ID=", val, " <-> ", $(this.hid.nativeElement).val());
+            remote: false, //this.remote,
+            idField: (model: M) => {
+                console.warn("idField nativeElement", model, "->", this._hidFn(model));
+                this._update(model, "");
             },
             autocomplete: true,
             autocompleteOnLoad: true,
-            pageSize: 5,
-            selectedElement: (model: T | null) => {
-                console.warn("selectedElement nativeElement ->", model, "ID=", $(this.hid.nativeElement).val());
-                $(this.txt.nativeElement).val(this._txtFn(model));
-                this.model = model;
+            pageSize: 5, //this.pageSize,
+            selectedElement: (model: M) => {
+                console.info("after idField ID=", $(this.hid.nativeElement).val(), " <-> ", this.value);
+                var text: T = this._txtFn(model);
+                console.warn("selectedElement nativeElement ->", model, "FORMAT=", text, " <=> ", $(this.hid.nativeElement).val());
+                //$(this.txt.nativeElement).val(text); //GIA FATTO NELLA _udpate
+                //EMIT Change + OnTouch
             },
         });
 
         //});
     }
 
-    @Input() pageSize: number = 5;
     @Input() type: string = "Aircraft";
     @Input() idField: string = "Aircraft_Sub_Iata";
+    // @Input() pageSize?: number = 5;
+    // @Input() remote?: boolean = false;
 
-    @Input() set model(model: T | null) {
+    @Input() set model(model: M) {
         if (model === undefined) {
             console.info("IGNORE MODEL NOT SET === undefined");
             return;
         }
         if (this._model !== model) {
             console.info("SET MODEL", model);
-            this._model = model;
-            // this._update(model, true, "model");
-            console.info("EMIT model CHANGE");
-            this.modelChange.emit(this._model);
+            this._update(model, "model");
         } else {
             console.info(model, "MODEL IS SAME");
         }
     }
-    get model(): T | null {
+    get model(): M {
         return this._model!;
     }
-    private _model?: T | null;
-    @Output() modelChange = new EventEmitter<T | null>();
+    private _model?: M;
+    @Output() modelChange = new EventEmitter<M>();
 
-    @Input() set value(value: string | null) {
+    @Input() set value(value: I) {
         if (value === undefined) {
             console.info("IGNORE VALUE NOT SET === undefined");
             return;
         }
         if (this._value !== value) {
-            console.info("SET VALUE", value);
-            this._value = value;
-            $(this.hid.nativeElement).val(value);
-            // this.hid.nativeElement.value = value;
-            console.info("EMIT value CHANGE");
-            this.valueChange.emit(this._value);
-            // var model = value ? $.datepicker.parseDate("UTC_FORMAT", value) : null;
-            // this._update(model, true, "value");
+            if (this.init && this.hid) {
+                console.info("SET VALUE", value);
+                $(this.hid.nativeElement).val(value);
+                this.init.autoComplete({ data: this.init, value }); //autoComplete IMPLICIT CALL IdField(model) ==> _update
+            } else {
+                console.warn("SET VALUE", value, "DELAY WAITING init..."); //TEORICAMENTE DOVREBBE PARTIRE CON autocompleteOnLoad=true
+                this._value = value;
+                //setTimeout(() => this.value = value);
+            }
         } else {
             console.info(value, "VALUE IS SAME");
         }
     }
-    get value(): string | null {
+    get value(): I {
         return this._value!;
     }
-    @Output() valueChange = new EventEmitter<string | null>();
-    private _value?: string | null;
+    @Output() valueChange = new EventEmitter<I>();
+    private _value?: I;
 
-    private _txtFn = (model: T | null): string => {
-        if (model == null) return "";
+    private _txtFn = (model: M): T => {
+        if (model == null) return "" as any as T;
         else {
             const m: any = model;
-            return `${m.Aircraft_Icao} (${m.Aircraft_Sub_Iata}) - ${m.Description}`;
+            return `${m.Aircraft_Icao} (${m.Aircraft_Sub_Iata}) - ${m.Description}` as any as T;
         }
     };
-    private _hidFn = (model: T | null): string | null => {
-        if (model == null) return null as string | null;
+    private _hidFn = (model: M): I => {
         const m: any = model;
-        return `${m.Aircraft_Sub_Iata}` as string | null;
+        if (m == null) return m as I; //null
+        return m[this.idField] as I;
     };
-    /*
-    @Input() format = "@"
-    private _formatterFn = (model: M): string => {
-        if (model == null) return "" ;
-        else {
-            const m: any = model;
-            return `${m.Aircraft_Icao} (${m.Aircraft_Sub_Iata}) - ${m.Description}`;
-        }
-    };
-    private _parserFn = (view: string): M| undefined => {
-        try {
-            return $.datepicker.parseDate(this.format, view);
-        } catch (err) {
-            // console.info("PARSING ERROR", err);
-            return undefined;
-        }
-    };
-    private _update(model: M | undefined, setinp: boolean = true, noemit: "" | "model" | "value" = "") {
+
+    private _update(model: M, noemit: "" | "model" | "value" = "") {
         if (model === undefined) return; //EVITO INIZIALIZZAZIONE SE VALORE NON SPECIFICATO
+        const changed = !!(this.model !== model);
         if (model === null) {
             this._model = model; //null
             this._value = null as any;
         } else {
             this._model = model;
-            this._value = $.datepicker.formatDate("UTC_FORMAT", model);
+            this._value = this._hidFn(model);
         }
+        const text: T = this._txtFn(model);
+        $(this.txt.nativeElement).val(text);
         if (noemit != "model") {
             console.info("EMIT model CHANGE");
             this.modelChange.emit(model);
@@ -185,53 +172,5 @@ export class TryGenericLookupComponent<T = any> implements AfterViewInit {
             console.info("EMIT value CHANGE");
             this.valueChange.emit(this._value);
         }
-        if (setinp) {
-            setTimeout(() => (this.txt.nativeElement.value = this._formatterFn(model)));
-        }
     }
-
-    parse() {
-        var inputText = this.txt.nativeElement.value;
-        console.log(this.txt, "INPUT.value", inputText);
-        var model = this._parserFn(inputText);
-        if (model != null) {
-            // this.valueUTC = $.datepicker.formatDate(UTC_FORMAT, D);
-            this._update(model, false, "");
-        } else if (!inputText) {
-            this._update(null as any, false, "");
-        }
-
-        //     $(this.inp.nativeElement)
-        //         .datepicker({
-        //             dateFormat: this.format,
-        //             showOn: "button",
-        //             disabled: false,
-        //             onSelect: (dateText: string, dp: any) => {
-        //
-        //                 console.log(dateText, "parse", parse);
-        //                 // this.birthday = parse;
-        //                 $(dp.input).datepicker("option", "disabled", !dateText);
-        //             },
-        //         })
-        //         .datepicker("option", "disabled", false);
-    }
-
-    dialog(e: MouseEvent) {
-        console.log("$event", e);
-        $(e.target).datepicker(
-            "dialog",
-            this.value,
-            (...args: any[]) => {
-                console.log("OnSelect", args);
-                var model = $.datepicker.parseDate("UTC_FORMAT", args[0]); //STRING FORMATTED
-                var model = $(args[1].input).datepicker("getDate"); //D OBJECT LT
-                // this.valueUTC = args[0]; //STRING FORMATTED
-                this._update(model, true, "");
-                console.log("model", model);
-            },
-            { showButtonPanel: true, dateFormat: "UTC_FORMAT", altField: this.txt.nativeElement, altFormat: this.format },
-            [e.clientX, e.clientY]
-        );
-    }
-*/
 }

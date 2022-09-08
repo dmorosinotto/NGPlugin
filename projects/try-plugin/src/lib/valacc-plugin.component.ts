@@ -19,7 +19,7 @@ type stringUTC = string;
     providers: [{ provide: NG_VALUE_ACCESSOR, useExisting: ValAccPluginComponent, multi: true }],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ValAccPluginComponent<D = Date | null, T = stringUTC | null, I = string> implements AfterViewInit, ControlValueAccessor {
+export class ValAccPluginComponent<D = Date | null, V = stringUTC | null, F = string> implements AfterViewInit, ControlValueAccessor {
     constructor() {
         console.log("on ctor", this.inp?.nativeElement ?? "NOT READY!");
     }
@@ -63,7 +63,7 @@ export class ValAccPluginComponent<D = Date | null, T = stringUTC | null, I = st
     @Output() modelChange = new EventEmitter<D>();
 
     @Input() format = "dd/mm/yy";
-    @Input() set value(value: T) {
+    @Input() set value(value: V) {
         if (value === undefined) {
             console.info("IGNORE MODEL NOT SET === undefined");
             return;
@@ -81,14 +81,14 @@ export class ValAccPluginComponent<D = Date | null, T = stringUTC | null, I = st
             console.info(value, "VALUE IS SAME");
         }
     }
-    get value(): T {
+    get value(): V {
         return this._value!;
     }
-    @Output() valueChange = new EventEmitter<T>();
-    private _value?: T;
+    @Output() valueChange = new EventEmitter<V>();
+    private _value?: V;
 
-    private _formatterFn = (model: D): I => $.datepicker.formatDate(this.format, model);
-    private _parserFn = (view: I): D | undefined => {
+    private _formatterFn = (model: D): F => $.datepicker.formatDate(this.format, model);
+    private _parserFn = (view: F): D | undefined => {
         try {
             return $.datepicker.parseDate(this.format, view);
         } catch (err) {
