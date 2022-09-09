@@ -16,7 +16,7 @@ declare var $: any;
             <fieldset>
                 <label>Prova con #NG nativeElement:</label>
                 <input type="text" #txt /><button type="button" #btn>...</button>
-                <input type="hidden" #hid [value]="value" />
+                <input type="text" #hid [value]="value" />
             </fieldset>
             <fieldset>
                 <span>Model: {{ model | json }} <-> Value: {{ value }}</span>
@@ -73,18 +73,42 @@ export class TryGenericLookupComponent<M = any | null, I = string | null, T = st
             hiddenControl: $(this.hid.nativeElement),
             remote: false, //this.remote,
             idField: (model: M) => {
-                console.warn("idField nativeElement", model, "->", this._hidFn(model));
+                const val: I = this._hidFn(model);
+                console.warn("idField nativeElement", model, "->", val);
                 this._update(model, "");
             },
             autocomplete: true,
             autocompleteOnLoad: true,
             pageSize: 5, //this.pageSize,
             selectedElement: (model: M) => {
-                console.info("after idField ID=", $(this.hid.nativeElement).val(), " <-> ", this.value);
-                var text: T = this._txtFn(model);
-                console.warn("selectedElement nativeElement ->", model, "FORMAT=", text, " <=> ", $(this.hid.nativeElement).val());
-                //$(this.txt.nativeElement).val(text); //GIA FATTO NELLA _udpate
+                const text: T = this._txtFn(model);
+                console.warn(
+                    "selectedElement nativeElement after idField ->",
+                    model,
+                    "FORMAT=",
+                    text,
+                    " <=> $",
+                    $(this.txt.nativeElement).val()
+                );
+                if (model == null) this._update(model, ""); //GESTIONE DEL CASO DI null NON PASSA PER idField
+                //VOLENDO POTREI FARE QUI AGGIORNAMETNI INPUT nativeElement AL POSTO DEL _update
+                this.hid.nativeElement.value = this.value; // $(this.hid.nativeElement).val(value);
+                this.txt.nativeElement.value = text; // $(this.txt.nativeElement).val(text);
                 //EMIT Change + OnTouch
+                console.info(
+                    "EMIT Change + OnTouch ID=",
+                    this.value,
+                    " <-> $",
+                    $(this.hid.nativeElement).val(),
+                    " =?= ",
+                    this.hid.nativeElement.value,
+                    "TEXT=",
+                    text,
+                    " <-> $",
+                    $(this.txt.nativeElement).val(),
+                    " =?= ",
+                    this.txt.nativeElement.value
+                );
             },
         });
 
@@ -155,15 +179,12 @@ export class TryGenericLookupComponent<M = any | null, I = string | null, T = st
     private _update(model: M, noemit: "" | "model" | "value" = "") {
         if (model === undefined) return; //EVITO INIZIALIZZAZIONE SE VALORE NON SPECIFICATO
         const changed = !!(this.model !== model);
-        if (model === null) {
-            this._model = model; //null
-            this._value = null as any;
-        } else {
-            this._model = model;
-            this._value = this._hidFn(model);
-        }
+        const value: I = this._hidFn(model);
         const text: T = this._txtFn(model);
-        $(this.txt.nativeElement).val(text);
+        this._model = model;
+        this._value = value;
+        // this.hid.nativeElement.value = value; // $(this.hid.nativeElement).val(value);
+        // this.txt.nativeElement.value = text; // $(this.txt.nativeElement).val(text);
         if (noemit != "model") {
             console.info("EMIT model CHANGE");
             this.modelChange.emit(model);
@@ -172,5 +193,6 @@ export class TryGenericLookupComponent<M = any | null, I = string | null, T = st
             console.info("EMIT value CHANGE");
             this.valueChange.emit(this._value);
         }
+        console.warn("FINE _update", this.value, "<->", $(this.hid.nativeElement).val(), text, "<==>", $(this.txt.nativeElement).val());
     }
 }

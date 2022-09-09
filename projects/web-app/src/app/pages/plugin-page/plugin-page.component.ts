@@ -1,11 +1,12 @@
 import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { TryGenericLookupComponent, TryPluginModule } from "@app/try-plugin";
+import { FormsModule } from "@angular/forms";
 
 @Component({
     selector: "app-plugin-page",
     standalone: true,
-    imports: [CommonModule, TryPluginModule, TryGenericLookupComponent],
+    imports: [CommonModule, TryPluginModule, TryGenericLookupComponent, FormsModule],
     template: `
         <p>plugin-page works!</p>
         <p>uso <u>app-try-plugin</u> per inglobare JQUERY con <b>format</b> + <i>[(two-way)]</i> binding su <b>value</b> e <b>model</b></p>
@@ -22,6 +23,7 @@ import { TryGenericLookupComponent, TryPluginModule } from "@app/try-plugin";
             aircraft = {{ aircraft | json }}
         </pre
         >
+        <label>idair:<input [(ngModel)]="idair" [ngModelOptions]="{ updateOn: 'blur' }" /></label>
     `,
     styles: [":host { background-color: lightcyan; }"],
     host: { class: "box" },
@@ -36,7 +38,8 @@ export class PluginPageComponent {
     }
     clearValue() {
         this.birtday = null;
+        this.idair = null;
     }
-    idair: string | null = "100";
+    idair?: string | null = "100";
     aircraft: any;
 }
