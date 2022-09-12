@@ -1,0 +1,55 @@
+CONTROLLO SUI type GESTITI SU PLUGIN genericLookup_js
+
+OK SU WCF
+    =Aircraft
+    =Airport
+    =FlightQualification
+    =FlightType
+    =ServiceType
+    =Country	-> Country/Countries
+    =Customers	(SI CON LA s NEL TYPE!)	-> Customer/Customers
+    =Handler
+    =Registration
+
+
+IN PIU SU JS + C'E' SU INTERFACCIA (*MA NON SU ENGINE -> throw Exception) !?
+    +PEAgent
+    +City			-> City/Cities
+    +Language
+    +DelayGroup
+    +NoiseCategory	-> Noise/Noises
+    +AirframeType
+    +EngineType
+    +FuelType
+    +LandingGearType
+    +IataAircraft
+    +SubiataAircraft
+
+
+IN PIU SU JS MA MANCANO SIA SU ENGINE E INTERFACCIA !!
+    -RunWay
+    -Airline
+    -IcaoCategory	-> IcaoCategory/IcaoCategories
+    -CheckInArea	-> CheckinArea/CheckinAreas
+    -FlightTypeCommercial
+    -RemOperative	-> RemarkOperative/List
+    -RemPublic		-> RemarkPublic/List
+    -Terminals		(SI CON LA s NEL TYPE!)
+    -TransportType
+    -TechnicalAirportType
+    -AirlineMovement
+    -Reason
+    -ResponsabilityUnit
+    -ResponsabilityType
+    -SsrCode
+    -RemoteSystem
+    -CLMatrixNoteType
+    -MarketingType
+	-Continent	(->SOLO Continents   SENZA urlAutocomplete!?)
+    -TimeBand	(->SOLO TimeBands    SENZA urlAutocomplete!?)
+    -LegType	(->SOLO LegTypes     SENZA urlAutocomplete!?)
+    *-ResourceStand *MANCA DEFINIZIONE cols IN JS - l'ho trovato su nLookup.js di Clearance 
+    *-ResourceGate	(->SOLO ResourceGates    SENZA urlAutocomplete!?) *MANCA DEFINIZIONE cols IN JS - l'ho trovato su nLookup.js di Clearance 
+    *-ResourceArrivalBelt	(->SOLO ResourceArrivalBelts     SENZA urlAutocomplete!?) *MANCA DEFINIZIONE cols IN JS - l'ho trovato su nLookup.js di Clearance 
+    *-ResourceDepartureBelt	(->SOLO ResourceDepartureBelts   SENZA urlAutocomplete!?) *MANCA DEFINIZIONE cols IN JS - l'ho trovato su nLookup.js di Clearance 
+    *-ResourceCheckIn	(->SOLO ResourceCheckIn  SENZA urlAutocomplete!?) *MANCA DEFINIZIONE cols IN JS - l'ho trovato su nLookup.js di Clearance 

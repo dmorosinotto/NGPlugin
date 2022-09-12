@@ -1,84 +1,58 @@
-import { CommonModule } from "@angular/common";
 import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, EventEmitter, Input, Output, ViewChild } from "@angular/core";
-
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
+import { CommonModule } from "@angular/common";
 declare var $: any;
 @Component({
-    selector: "try-generic-lookup",
+    selector: "app-valacc-generic-lookup",
     standalone: true,
     imports: [CommonModule],
     template: `
-        <form>
-            <fieldset>
-                <label>Prova con #ID:</label>
-                <input type="text" id="lookupTxt" /><button type="button" id="lookupBtn">...</button>
-                <input type="text" id="lookupHid" value="101" /><button type="reset">X CLEAR</button>
-            </fieldset>
-            <fieldset>
-                <label>Prova con #NG nativeElement:</label>
-                <input type="text" #txt /><button type="button" #btn>...</button>
-                <input type="text" #hid [value]="value" />
-            </fieldset>
-            <fieldset>
-                <span>Model: {{ model | json }} <-> Value: {{ value }}</span>
-            </fieldset>
-        </form>
+        <fieldset>
+            <input type="text" #txt /><button type="button" #btn>...</button>
+            <input type="hidden" #hid [value]="value" />
+            <span>Model: {{ model | json }} <-> Value: {{ value }}</span>
+        </fieldset>
     `,
-    styles: ["form { background-color: lightblue; padding: 10px }", "fieldset { display: flex; }"],
-    // changeDetection: ChangeDetectionStrategy.OnPush,
+    styles: ["fieldset { display: flex; }"],
+    providers: [{ provide: NG_VALUE_ACCESSOR, useExisting: ValAccGenericLookupComponent, multi: true }],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class TryGenericLookupComponent<M = any | null, I = string | null, T = string> implements AfterViewInit {
+export class ValAccGenericLookupComponent<M = any | null, I = string | null, T = string> implements AfterViewInit, ControlValueAccessor {
+    constructor() {
+        console.log(this.constructor.name, "on ctor", this.txt?.nativeElement ?? "NOT READY!"); //NOT READY
+    }
+    writeValue(value: any): void {
+        console.info(this.constructor.name, "writeValue", value);
+        this.value = value;
+    }
+    private _OnChange?: (_: any) => void;
+    registerOnChange(fn: (_: any) => void): void {
+        console.info(this.constructor.name, "registerOnChange", fn);
+        this._OnChange = fn;
+    }
+    private _OnTouhed?: () => void;
+    registerOnTouched(fn: () => void): void {
+        console.info(this.constructor.name, "registerOnTouched", fn);
+        this._OnTouhed = fn;
+    }
+    private _disabled = false;
+    setDisabledState(isDisabled: boolean): void {
+        this._disabled = isDisabled;
+        console.info(this.constructor.name, "setDisabledState", isDisabled);
+        $(this.txt.nativeElement).prop("disabled", this._disabled);
+        $(this.btn.nativeElement).prop("disabled", this._disabled);
+        $(this.hid.nativeElement).prop("disabled", this._disabled);
+    }
+
     @ViewChild("txt", { read: ElementRef, static: true }) txt!: ElementRef;
     @ViewChild("btn", { read: ElementRef, static: true }) btn!: ElementRef;
     @ViewChild("hid", { read: ElementRef, static: true }) hid!: ElementRef;
     private init: any;
 
-    constructor() {
-        console.log("on ctor", this.txt?.nativeElement ?? "NOT READY!");
-    }
-
-    ngOnChange() {
-        console.log("on ngOnChange", this.txt?.nativeElement ?? "NOT READY!");
-    }
-
-    ngOnInit() {
-        console.log("on ngOnInit", this.txt?.nativeElement ?? "NOT READY!");
-    }
-
     ngAfterViewInit(): void {
-        console.log("on ngAfterViewInit", this.txt?.nativeElement ?? "NOT READY!");
-        console.info("on ngAfterViewInit CURRENT", this.type, this.idField);
+        console.log(this.constructor.name, "on ngAfterViewInit", this.txt?.nativeElement ?? "NOT READY!"); //OK
+        console.info(this.constructor.name, "on ngAfterViewInit CURRENT", this.type, this.idField);
         //$(function () {
-        $("#lookupTxt").genericLookup({
-            type: "Aircraft",
-            button: "#lookupBtn",
-            hiddenControl: "#lookupHid",
-            //remote: true,
-            idField: "Aircraft_Sub_Iata",
-            getCustomColumns: function (cols: any, type: string) {
-                //callback che DEVE ALTERARE ARRAY cols PER PERSONALIZZARE COLONNE GRIGLIA
-                console.info("getCustomColumns ->", type, cols);
-                cols.push({ headerText: "myColPK", key: "ig_pk", width: "10%", hidden: false });
-            },
-            datasourceParameters: "VALID_FLAG;Y", //aggiunti sempre alla chiamata API come parameters=STRINGA (solitamente formato key;val)
-            getRuntimeParameters: function () {
-                //callback che DEVE TORNARE OGGETTO CON { parameters = "STRINGA solitamente formato key1;val1|key2;val2" } AGGIUNTI IN QUERYSTRING parameters PASSATO ALLE API
-                var id = $("#lookupHid").val();
-                console.log("getRuntimeParameters ->", id);
-                return !id ? null : { parameters: `AIRCRAFT_SUB_IATA;${id}` };
-            },
-            //idField: function (...args) { console.log("idField->", args); var o=args[0]; return `${o.Aircraft_Sub_Iata},${o.Seats},${o.Mtow}`  },
-            autocomplete: true,
-            autocompleteOnLoad: true,
-            pageSize: 5,
-            selectedElement: function (o: any) {
-                console.warn("selectedElement ->", o, "ID=", $("#lookupHid").val());
-                var formatter = function (o: any) {
-                    return (o && `${o.Aircraft_Icao} (${o.Aircraft_Sub_Iata}) - ${o.Description}`) || "";
-                };
-                $("#lookupTxt").val(formatter(o));
-            },
-        });
-
         this.init = $(this.txt.nativeElement).genericLookup({
             type: this.type,
             button: $(this.btn.nativeElement),
@@ -86,7 +60,7 @@ export class TryGenericLookupComponent<M = any | null, I = string | null, T = st
             remote: false, //this.remote,
             idField: (model: M) => {
                 const val: I = this._hidFn(model);
-                console.warn("idField nativeElement", model, "->", val);
+                console.warn(this.constructor.name, "idField nativeElement", model, "->", val);
                 this._update(model, "");
             },
             autocomplete: true,
@@ -95,6 +69,7 @@ export class TryGenericLookupComponent<M = any | null, I = string | null, T = st
             selectedElement: (model: M) => {
                 const text: T = this._txtFn(model);
                 console.warn(
+                    this.constructor.name,
                     "selectedElement nativeElement after idField ->",
                     model,
                     "FORMAT=",
@@ -108,6 +83,7 @@ export class TryGenericLookupComponent<M = any | null, I = string | null, T = st
                 this.txt.nativeElement.value = text; // $(this.txt.nativeElement).val(text);
                 //EMIT Change + OnTouch
                 console.info(
+                    this.constructor.name,
                     "EMIT Change + OnTouch ID=",
                     this.value,
                     " <-> $",
@@ -134,14 +110,14 @@ export class TryGenericLookupComponent<M = any | null, I = string | null, T = st
 
     @Input() set model(model: M) {
         if (model === undefined) {
-            console.info("IGNORE MODEL NOT SET === undefined");
+            console.info(this.constructor.name, "IGNORE MODEL NOT SET === undefined");
             return;
         }
         if (this._model !== model) {
-            console.info("SET MODEL", model);
+            console.info(this.constructor.name, "SET MODEL", model);
             this._update(model, "model");
         } else {
-            console.info(model, "MODEL IS SAME");
+            console.info(this.constructor.name, model, "MODEL IS SAME");
         }
     }
     get model(): M {
@@ -152,21 +128,21 @@ export class TryGenericLookupComponent<M = any | null, I = string | null, T = st
 
     @Input() set value(value: I) {
         if (value === undefined) {
-            console.info("IGNORE VALUE NOT SET === undefined");
+            console.info(this.constructor.name, "IGNORE VALUE NOT SET === undefined");
             return;
         }
         if (this._value !== value) {
             if (this.init && this.hid) {
-                console.info("SET VALUE", value);
+                console.info(this.constructor.name, "SET VALUE", value);
                 $(this.hid.nativeElement).val(value);
                 this.init.autoComplete({ data: this.init, value }); //autoComplete IMPLICIT CALL IdField(model) ==> _update
             } else {
-                console.warn("SET VALUE", value, "DELAY WAITING init..."); //TEORICAMENTE DOVREBBE PARTIRE CON autocompleteOnLoad=true
+                console.warn(this.constructor.name, "SET VALUE", value, "DELAY WAITING init..."); //TEORICAMENTE DOVREBBE PARTIRE CON autocompleteOnLoad=true
                 this._value = value;
                 //setTimeout(() => this.value = value);
             }
         } else {
-            console.info(value, "VALUE IS SAME");
+            console.info(this.constructor.name, value, "VALUE IS SAME");
         }
     }
     get value(): I {
@@ -198,13 +174,30 @@ export class TryGenericLookupComponent<M = any | null, I = string | null, T = st
         // this.hid.nativeElement.value = value; // $(this.hid.nativeElement).val(value);
         // this.txt.nativeElement.value = text; // $(this.txt.nativeElement).val(text);
         if (noemit != "model") {
-            console.info("EMIT model CHANGE");
+            console.info(this.constructor.name, "EMIT model CHANGE");
             this.modelChange.emit(model);
         }
         if (noemit != "value") {
-            console.info("EMIT value CHANGE");
+            console.info(this.constructor.name, "EMIT value CHANGE");
             this.valueChange.emit(this._value);
         }
-        console.warn("FINE _update", this.value, "<->", $(this.hid.nativeElement).val(), text, "<==>", $(this.txt.nativeElement).val());
+        if (this._OnChange && changed) {
+            console.info(this.constructor.name, "EMIT _OnChange", this._value);
+            this._OnChange(this._value);
+        }
+        if (this._OnTouhed && changed) {
+            console.info(this.constructor.name, "EMIT _OnTouhed");
+            this._OnTouhed();
+        }
+        console.warn(
+            this.constructor.name,
+            "FINE _update",
+            this.value,
+            "<->",
+            $(this.hid.nativeElement).val(),
+            text,
+            "<==>",
+            $(this.txt.nativeElement).val()
+        );
     }
 }
