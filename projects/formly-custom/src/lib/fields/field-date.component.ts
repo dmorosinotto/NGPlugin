@@ -7,6 +7,7 @@ import { ValAccPluginComponent } from "@app/try-plugin";
 
 interface DateProps extends FormlyFieldProps {
     format: string;
+    immutable?: boolean;
 }
 
 export interface FormlyMultiCheckboxFieldConfig extends FormlyFieldConfig<DateProps> {
@@ -23,6 +24,7 @@ export interface FormlyMultiCheckboxFieldConfig extends FormlyFieldConfig<DatePr
             [formlyAttributes]="field"
             [(model)]="formState.lookup[$any(key)]"
             [format]="props.format"
+            [immutable]="props.immutable"
         ></app-valacc-plugin>
     `,
     changeDetection: ChangeDetectionStrategy.OnPush,

@@ -10,10 +10,10 @@ declare var $: any;
         <fieldset>
             <input type="text" #txt /><button type="button" #btn>...</button>
             <input type="hidden" #hid [value]="value" />
-            <span>Model: {{ model | json }} <-> Value: {{ value }}</span>
+            <legend>Model: {{ model | json }} <-> Value: {{ value }}</legend>
         </fieldset>
     `,
-    styles: ["fieldset { display: flex; }"],
+    styles: ["fieldset { display: flex; }", "legend { font-size: 0.75em; float: right; margin: 0 }"],
     providers: [{ provide: NG_VALUE_ACCESSOR, useExisting: ValAccGenericLookupComponent, multi: true }],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -103,8 +103,8 @@ export class ValAccGenericLookupComponent<M = any | null, I = string | null, T =
         //});
     }
 
-    @Input() type: string = "Aircraft";
-    @Input() idField: string = "Aircraft_Sub_Iata";
+    @Input() type!: string; // = "Aircraft";
+    @Input() idField!: string; // = "Aircraft_Sub_Iata";
     // @Input() pageSize?: number = 5;
     // @Input() remote?: boolean = false;
 
@@ -164,9 +164,14 @@ export class ValAccGenericLookupComponent<M = any | null, I = string | null, T =
         return m[this.idField] as I;
     };
 
+    @Input() immutable?: boolean;
+    @Output() change = new EventEmitter<{ text: T; value: I; model: M; old: M }>();
+    private _issame = (old: any, cur: any) => (this.immutable && old === cur) || JSON.stringify(old) == JSON.stringify(cur);
+
     private _update(model: M, noemit: "" | "model" | "value" = "") {
         if (model === undefined) return; //EVITO INIZIALIZZAZIONE SE VALORE NON SPECIFICATO
-        const changed = !!(this.model !== model);
+        const old = this.model;
+        const changed = !this._issame(old, model);
         const value: I = this._hidFn(model);
         const text: T = this._txtFn(model);
         this._model = model;
@@ -189,6 +194,7 @@ export class ValAccGenericLookupComponent<M = any | null, I = string | null, T =
             console.info(this.constructor.name, "EMIT _OnTouhed");
             this._OnTouhed();
         }
+        if (changed) this.change.emit({ text, value, model, old });
         console.warn(
             this.constructor.name,
             "FINE _update",

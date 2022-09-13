@@ -50,7 +50,7 @@ export class ValAccPluginComponent<D = Date | null, V = stringUTC | null, F = st
             console.info(this.constructor.name, "IGNORE MODEL NOT SET === undefined");
             return;
         }
-        if (this._model !== model) {
+        if (!this._issame(this._model, model)) {
             console.info(this.constructor.name, "SET MODEL", model);
             this._update(model, true, "model");
         } else {
@@ -69,7 +69,7 @@ export class ValAccPluginComponent<D = Date | null, V = stringUTC | null, F = st
             console.info(this.constructor.name, "IGNORE MODEL NOT SET === undefined");
             return;
         }
-        if (this._value !== value) {
+        if (!this._issame(this._value, value)) {
             console.info(this.constructor.name, "SET VALUE", value);
             var model = value ? $.datepicker.parseDate(UTC_FORMAT, value) : null;
             this._update(model, true, "value");
@@ -97,9 +97,14 @@ export class ValAccPluginComponent<D = Date | null, V = stringUTC | null, F = st
             return undefined;
         }
     };
+
+    @Input() immutable?: boolean;
+    @Output() change = new EventEmitter<{ text: F; value: V; model: D; old: D }>();
+    private _issame = (old: any, cur: any) => (this.immutable && old === cur) || JSON.stringify(old) == JSON.stringify(cur);
     private _update(model: D | undefined, setinp: boolean = true, noemit: "" | "model" | "value" = "") {
         if (model === undefined) return; //EVITO INIZIALIZZAZIONE SE VALORE NON SPECIFICATO
-        const changed = !!(this.model !== model);
+        const old = this.model;
+        const changed = !this._issame(old, model);
         if (model === null) {
             this._model = model; //null
             this._value = null as any;
@@ -107,6 +112,7 @@ export class ValAccPluginComponent<D = Date | null, V = stringUTC | null, F = st
             this._model = model;
             this._value = $.datepicker.formatDate(UTC_FORMAT, model);
         }
+        const text = this._formatterFn(model);
         if (noemit != "model") {
             console.info(this.constructor.name, "EMIT model CHANGE");
             this.modelChange.emit(model);
@@ -123,8 +129,11 @@ export class ValAccPluginComponent<D = Date | null, V = stringUTC | null, F = st
             console.info(this.constructor.name, "EMIT _OnTouhed");
             this._OnTouhed();
         }
+        if (changed) {
+            this.change.emit({ value: this.value, text, model, old });
+        }
         if (setinp) {
-            setTimeout(() => (this.inp.nativeElement.value = this._formatterFn(model)));
+            setTimeout(() => (this.inp.nativeElement.value = text));
         }
     }
 

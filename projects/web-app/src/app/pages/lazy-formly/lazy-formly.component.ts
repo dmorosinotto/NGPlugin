@@ -35,6 +35,7 @@ export class LazyFormlyComponent {
     public model = {
         email: "Ciao@pippo.it",
         from: "1975-03-20Z",
+        // aircraft: "100",
     };
     public state = {
         lookup: {
@@ -61,6 +62,7 @@ export class LazyFormlyComponent {
             templateOptions: {
                 label: "From date",
                 format: "ITA dd/MM/yy",
+                immutable: true,
                 // required: true,
             },
         },
@@ -71,6 +73,27 @@ export class LazyFormlyComponent {
                 label: "To picker",
                 // format: "dd/mm/yy",
                 required: true,
+                change: (field, event) => {
+                    console.warn("HANDLE change ", field.key, event);
+                    if ((event.model as Date).getFullYear() != 2022) {
+                        //EQUIVALE A this.state.lookup.to = new Date();
+                        field.options!.formState.lookup.to = new Date();
+                    }
+                },
+            },
+        },
+        {
+            key: "aircraft",
+            type: "lookup",
+            templateOptions: {
+                label: "Select aircraft",
+                required: true,
+                // immutable: true,
+                change: (field, event) => {
+                    console.group("%cLOOKUP SELECTED change " + field.key, "background-color: cyan");
+                    console.log(event);
+                    console.groupEnd();
+                },
             },
         },
     ];
