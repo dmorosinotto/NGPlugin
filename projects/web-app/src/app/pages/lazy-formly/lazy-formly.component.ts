@@ -56,6 +56,7 @@ export class LazyFormlyComponent {
                 validation: ["email"],
             },
         },
+        /*
         {
             key: "from",
             type: "date",
@@ -75,7 +76,7 @@ export class LazyFormlyComponent {
                 required: true,
                 change: (field, event) => {
                     console.warn("HANDLE change ", field.key, event);
-                    if ((event.model as Date).getFullYear() != 2022) {
+                    if ((event?.model as Date)?.getFullYear() != 2022) {
                         //EQUIVALE A this.state.lookup.to = new Date();
                         field.options!.formState.lookup.to = new Date();
                     }
@@ -96,6 +97,7 @@ export class LazyFormlyComponent {
                 },
             },
         },
+        */
     ];
 
     onSubmit(model: any) {

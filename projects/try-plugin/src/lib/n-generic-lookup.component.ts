@@ -1,9 +1,19 @@
-import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, EventEmitter, Input, Output, ViewChild } from "@angular/core";
+import {
+    AfterViewInit,
+    OnDestroy,
+    ChangeDetectionStrategy,
+    Component,
+    ElementRef,
+    EventEmitter,
+    Input,
+    Output,
+    ViewChild,
+} from "@angular/core";
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
 import { CommonModule } from "@angular/common";
 declare var $: any;
 @Component({
-    selector: "app-valacc-generic-lookup",
+    selector: "n-generic-lookup",
     standalone: true,
     imports: [CommonModule],
     template: `
@@ -14,10 +24,12 @@ declare var $: any;
         </fieldset>
     `,
     styles: ["fieldset { display: flex; }", "legend { font-size: 0.75em; float: right; margin: 0 }"],
-    providers: [{ provide: NG_VALUE_ACCESSOR, useExisting: ValAccGenericLookupComponent, multi: true }],
+    providers: [{ provide: NG_VALUE_ACCESSOR, useExisting: NGenericLookupComponent, multi: true }],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ValAccGenericLookupComponent<M = any | null, I = string | null, T = string> implements AfterViewInit, ControlValueAccessor {
+export class NGenericLookupComponent<M = any | null, I = string | null, T = string>
+    implements AfterViewInit, OnDestroy, ControlValueAccessor
+{
     constructor() {
         console.log(this.constructor.name, "on ctor", this.txt?.nativeElement ?? "NOT READY!"); //NOT READY
     }
@@ -52,55 +64,75 @@ export class ValAccGenericLookupComponent<M = any | null, I = string | null, T =
     ngAfterViewInit(): void {
         console.log(this.constructor.name, "on ngAfterViewInit", this.txt?.nativeElement ?? "NOT READY!"); //OK
         console.info(this.constructor.name, "on ngAfterViewInit CURRENT", this.type, this.idField);
-        //$(function () {
-        this.init = $(this.txt.nativeElement).genericLookup({
-            type: this.type,
-            button: $(this.btn.nativeElement),
-            hiddenControl: $(this.hid.nativeElement),
-            remote: false, //this.remote,
-            idField: (model: M) => {
-                const val: I = this._hidFn(model);
-                console.warn(this.constructor.name, "idField nativeElement", model, "->", val);
-                this._update(model, "");
-            },
-            autocomplete: true,
-            autocompleteOnLoad: true,
-            pageSize: 5, //this.pageSize,
-            selectedElement: (model: M) => {
-                const text: T = this._txtFn(model);
-                console.warn(
-                    this.constructor.name,
-                    "selectedElement nativeElement after idField ->",
-                    model,
-                    "FORMAT=",
-                    text,
-                    " <=> $",
-                    $(this.txt.nativeElement).val()
-                );
-                if (model == null) this._update(model, ""); //GESTIONE DEL CASO DI null NON PASSA PER idField
-                //VOLENDO POTREI FARE QUI AGGIORNAMETNI INPUT nativeElement AL POSTO DEL _update
-                this.hid.nativeElement.value = this.value; // $(this.hid.nativeElement).val(value);
-                this.txt.nativeElement.value = text; // $(this.txt.nativeElement).val(text);
-                //EMIT Change + OnTouch
-                console.info(
-                    this.constructor.name,
-                    "EMIT Change + OnTouch ID=",
-                    this.value,
-                    " <-> $",
-                    $(this.hid.nativeElement).val(),
-                    " =?= ",
-                    this.hid.nativeElement.value,
-                    "TEXT=",
-                    text,
-                    " <-> $",
-                    $(this.txt.nativeElement).val(),
-                    " =?= ",
-                    this.txt.nativeElement.value
-                );
-            },
-        });
+        if (!this.type || !this.idField) {
+            console.error("CAN'T INIT genericLookup PLUGIN MISSING", this.type, this.idField);
+        } else {
+            //$(function () {
+            this.init = $(this.txt.nativeElement).genericLookup({
+                type: this.type,
+                button: $(this.btn.nativeElement),
+                hiddenControl: $(this.hid.nativeElement),
+                remote: false, //this.remote,
+                idField: (model: M) => {
+                    const val: I = this._hidFn(model);
+                    console.warn(this.constructor.name, "idField nativeElement", model, "->", val);
+                    this._update(model, "");
+                },
+                autocomplete: true,
+                autocompleteOnLoad: true,
+                pageSize: 5, //this.pageSize,
+                selectedElement: (model: M) => {
+                    const text: T = this._txtFn(model);
+                    console.warn(
+                        this.constructor.name,
+                        "selectedElement nativeElement after idField ->",
+                        model,
+                        "FORMAT=",
+                        text,
+                        " <=> $",
+                        $(this.txt.nativeElement).val()
+                    );
+                    if (model == null) this._update(model, ""); //GESTIONE DEL CASO DI null NON PASSA PER idField
+                    //VOLENDO POTREI FARE QUI AGGIORNAMETNI INPUT nativeElement AL POSTO DEL _update
+                    this.hid.nativeElement.value = this.value; // $(this.hid.nativeElement).val(value);
+                    this.txt.nativeElement.value = text; // $(this.txt.nativeElement).val(text);
+                    //EMIT Change + OnTouch
+                    console.info(
+                        this.constructor.name,
+                        "EMIT Change + OnTouch ID=",
+                        this.value,
+                        " <-> $",
+                        $(this.hid.nativeElement).val(),
+                        " =?= ",
+                        this.hid.nativeElement.value,
+                        "TEXT=",
+                        text,
+                        " <-> $",
+                        $(this.txt.nativeElement).val(),
+                        " =?= ",
+                        this.txt.nativeElement.value
+                    );
+                },
+            });
+            //});
+        }
+    }
 
-        //});
+    ngOnDestroy(): void {
+        if (this.init)
+            try {
+                console.log("destroy LOOKUP ", obj);
+                // this.init.closeLookupManually({ data: null });
+                var obj = this.init; //COPIATO DA closeLookupManually
+                obj.igGrid && $(obj.igGrid).igGrid("destroy");
+                obj.modal && obj.modal.detach();
+                obj.options.idField = null;
+                obj.options.selectedElement = function () {};
+                obj.options.getCustomColumns = function () {};
+                obj.options.getRuntimeParameters = function () {};
+            } catch (err) {
+                console.error(this.constructor.name, "ERROR ngOnDestroy", err);
+            }
     }
 
     @Input() type!: string; // = "Aircraft";

@@ -1,26 +1,37 @@
 import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { ReactiveFormsModule, FormGroup, FormControl, FormsModule } from "@angular/forms";
-import { ValAccGenericLookupComponent, ValAccPluginComponent } from "@app/try-plugin";
+import { NGenericLookupComponent, NDatePickerComponent } from "@app/try-plugin";
 
 @Component({
     selector: "app-form-page",
     standalone: true,
-    imports: [CommonModule, FormsModule, ReactiveFormsModule, ValAccPluginComponent, ValAccGenericLookupComponent],
+    imports: [CommonModule, FormsModule, ReactiveFormsModule, NDatePickerComponent, NGenericLookupComponent],
     template: `
         <p>form-page works!</p>
         <p>uso <u>valacc-plugin</u> per abilitare utilizzo con <b>ReactiveForm</b> implementando <i>NG_VALUE_ACCESSOR</i> custom</p>
         <form [formGroup]="frm">
-            <label>DATA: <app-valacc-plugin formControlName="data" [(model)]="m.d"></app-valacc-plugin></label>
-            <label>BDAY: <app-valacc-plugin formControlName="bday" [(model)]="m.b"></app-valacc-plugin></label>
             <label
-                >LOOKUP: <app-valacc-generic-lookup formControlName="aircraft" [(model)]="m.a" [(value)]="id"></app-valacc-generic-lookup
+                >DATA: <n-date-picker type="Aircraft" idField="Aircraft_Sub_Iata" formControlName="data" [(model)]="m.d"></n-date-picker
+            ></label>
+            <label
+                >BDAY: <n-date-picker type="Aircraft" idField="Aircraft_Sub_Iata" formControlName="bday" [(model)]="m.b"></n-date-picker
+            ></label>
+            <label
+                >LOOKUP:
+                <n-generic-lookup
+                    type="Aircraft"
+                    idField="Aircraft_Sub_Iata"
+                    formControlName="aircraft"
+                    [(model)]="m.a"
+                    [(value)]="id"
+                ></n-generic-lookup
             ></label>
         </form>
-        <label>FC: <app-valacc-plugin [formControl]="fc" [(value)]="utc"></app-valacc-plugin></label>
+        <label>FC: <n-date-picker [formControl]="fc" [(value)]="utc"></n-date-picker></label>
         <label>disabled=<input type="checkbox" (input)="toggleDisable()" /> {{ fc.disabled }} </label>
         <hr />
-        <app-valacc-generic-lookup [(ngModel)]="id" [ngModelOptions]="{ updateOn: 'blur' }"></app-valacc-generic-lookup>
+        <n-generic-lookup type="Aircraft" idField="Aircraft_Sub_Iata" [(ngModel)]="id"></n-generic-lookup>
         <button type="reset" (click)="id = ''; utc = ''">RESET</button>
         <pre>
 id={{ id }}

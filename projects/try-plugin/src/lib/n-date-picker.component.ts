@@ -1,11 +1,21 @@
-import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, EventEmitter, Input, Output, ViewChild } from "@angular/core";
+import {
+    AfterViewInit,
+    ChangeDetectionStrategy,
+    Component,
+    ElementRef,
+    EventEmitter,
+    Input,
+    OnDestroy,
+    Output,
+    ViewChild,
+} from "@angular/core";
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
 import { CommonModule } from "@angular/common";
 declare var $: any;
 const UTC_FORMAT = "yy-mm-ddZ";
 type stringUTC = string;
 @Component({
-    selector: "app-valacc-plugin",
+    selector: "n-date-picker",
     standalone: true,
     // imports: [CommonModule],
     template: `
@@ -16,10 +26,12 @@ type stringUTC = string;
         </div>
     `,
     styles: ["div { display: flex }"],
-    providers: [{ provide: NG_VALUE_ACCESSOR, useExisting: ValAccPluginComponent, multi: true }],
+    providers: [{ provide: NG_VALUE_ACCESSOR, useExisting: NDatePickerComponent, multi: true }],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ValAccPluginComponent<D = Date | null, V = stringUTC | null, F = string> implements AfterViewInit, ControlValueAccessor {
+export class NDatePickerComponent<D = Date | null, V = stringUTC | null, F = string>
+    implements AfterViewInit, OnDestroy, ControlValueAccessor
+{
     constructor() {
         console.log(this.constructor.name, "on ctor", this.inp?.nativeElement ?? "NOT READY!");
     }
@@ -184,7 +196,7 @@ export class ValAccPluginComponent<D = Date | null, V = stringUTC | null, F = st
 
     dialog(e: MouseEvent) {
         console.log(this.constructor.name, "$event", e);
-        $(e.target).datepicker(
+        this.init = $(e.target).datepicker(
             "dialog",
             this.value,
             (...args: any[]) => {
@@ -198,5 +210,16 @@ export class ValAccPluginComponent<D = Date | null, V = stringUTC | null, F = st
             { showButtonPanel: true, dateFormat: UTC_FORMAT, altField: this.inp.nativeElement, altFormat: this.format },
             [e.clientX, e.clientY]
         );
+    }
+
+    private init: any;
+    ngOnDestroy(): void {
+        if (this.init)
+            try {
+                this.init.destroy();
+                this.init.options.OnSelect = function () {};
+            } catch (err) {
+                console.error(this.constructor.name, "ERROR ngOnDestroy", err);
+            }
     }
 }

@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, Component, Type } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 
 import { FormlyModule, FieldType, FieldTypeConfig, FormlyFieldProps, FormlyFieldConfig } from "@ngx-formly/core";
-import { ValAccGenericLookupComponent } from "@app/try-plugin";
+import { NGenericLookupComponent } from "@app/try-plugin";
 
 interface LookupProps extends FormlyFieldProps {
     type: string;
@@ -11,23 +11,23 @@ interface LookupProps extends FormlyFieldProps {
     immutable?: boolean;
 }
 
-export interface FormlyMultiCheckboxFieldConfig extends FormlyFieldConfig<LookupProps> {
-    type: "date" | Type<FormlyFieldLookup>;
+export interface FormlyLookupFieldConfig extends FormlyFieldConfig<LookupProps> {
+    type: "lookup" | Type<FormlyFieldLookup>;
 }
 
 @Component({
     selector: "formly-field-lookup",
     standalone: true,
-    imports: [CommonModule, FormlyModule, ReactiveFormsModule, ValAccGenericLookupComponent],
+    imports: [CommonModule, FormlyModule, ReactiveFormsModule, NGenericLookupComponent],
     template: `
-        <app-valacc-generic-lookup
+        <n-generic-lookup
             [formControl]="formControl"
             [formlyAttributes]="field"
             [(model)]="formState.lookup[$any(key)]"
             [type]="props.type"
             [idField]="props.idField"
             [immutable]="props.immutable"
-        ></app-valacc-generic-lookup>
+        ></n-generic-lookup>
     `,
     changeDetection: ChangeDetectionStrategy.OnPush,
     styles: [".ng-invalid ::ng-deep button {background-color: red}"],
