@@ -5,8 +5,8 @@ import { FieldType, FieldTypeConfig, FormlyModule } from "@ngx-formly/core";
 
 @Component({
     selector: "formly-field-text",
-    standalone: true,
-    imports: [FormlyModule, ReactiveFormsModule],
+    // standalone: true,
+    // imports: [FormlyModule, ReactiveFormsModule],
     template: ` <input type="text" [formControl]="formControl" [formlyAttributes]="field" /> `,
     styles: [".ng-invalid { border: 2px solid red }"],
     changeDetection: ChangeDetectionStrategy.OnPush,

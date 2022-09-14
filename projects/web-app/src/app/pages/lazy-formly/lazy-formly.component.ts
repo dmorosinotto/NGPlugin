@@ -1,10 +1,11 @@
 import { CommonModule } from "@angular/common";
-import { Component } from "@angular/core";
+import { Component, NgModule } from "@angular/core";
+import { Routes, RouterModule } from "@angular/router";
 import { ReactiveFormsModule, FormGroup } from "@angular/forms";
 import { FormlyModule, FormlyFieldConfig, FormlyFormOptions } from "@ngx-formly/core";
 
 @Component({
-    selector: "app-lazy-formly",
+    selector: "app-formly-page",
     standalone: true,
     imports: [CommonModule, ReactiveFormsModule, FormlyModule],
     template: `
@@ -28,7 +29,7 @@ state={{ state | json }}
     styles: [":host {  background-color: lightyellow; }"],
     host: { class: "box" },
 })
-export class LazyFormlyComponent {
+export class FormlyPageComponent {
     constructor() {}
     //FORMLY
     public form = new FormGroup({});
@@ -56,7 +57,6 @@ export class LazyFormlyComponent {
                 validation: ["email"],
             },
         },
-        /*
         {
             key: "from",
             type: "date",
@@ -97,7 +97,6 @@ export class LazyFormlyComponent {
                 },
             },
         },
-        */
     ];
 
     onSubmit(model: any) {
@@ -109,3 +108,11 @@ export class LazyFormlyComponent {
         }
     }
 }
+
+// //IN ALTERNATIVA AGLI standalone COMPONENT
+// const routes: Routes = [{ path: "", component: FormlyPageComponent }];
+// @NgModule({
+//     declarations: [FormlyPageComponent],
+//     imports: [CommonModule, ReactiveFormsModule, FormlyModule, RouterModule.forChild(routes)],
+// })
+// export class FormlyLazyModule {}

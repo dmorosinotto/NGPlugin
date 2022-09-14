@@ -16,8 +16,8 @@ export interface FormlyDateFieldConfig extends FormlyFieldConfig<DateProps> {
 
 @Component({
     selector: "formly-field-date",
-    standalone: true,
-    imports: [CommonModule, FormlyModule, ReactiveFormsModule, NDatePickerComponent],
+    // standalone: true,
+    // imports: [CommonModule, FormlyModule, ReactiveFormsModule, NDatePickerComponent],
     template: `
         <n-date-picker
             [formControl]="formControl"

@@ -5,8 +5,8 @@ import { FieldWrapper, FormlyFieldConfig, FormlyFieldProps, FormlyModule } from 
 
 @Component({
     selector: "formly-wrapper-panel",
-    standalone: true,
-    imports: [CommonModule, FormlyModule],
+    // standalone: true,
+    // imports: [CommonModule, FormlyModule],
     template: `
         <div class="panel">
             <label>

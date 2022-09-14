@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component, VERSION } from "@angular/core";
 import { SharedService } from "@app/shared";
 
 @Component({
@@ -17,7 +17,7 @@ import { SharedService } from "@app/shared";
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppComponent {
-    title = "web-app";
+    title = `ANGULAR ${VERSION.full} web-app`;
 
     constructor(private shared: SharedService) {
         this.shared.log(this.title);

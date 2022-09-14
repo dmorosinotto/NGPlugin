@@ -6,9 +6,12 @@ import { PluginPageComponent } from "./plugin-page/plugin-page.component";
 
 const routes: Routes = [
     { path: "", pathMatch: "full", component: SharedComponent },
-    { path: "form", pathMatch: "full", component: FormPageComponent },
+    { path: "form", component: FormPageComponent },
+    // { path: "form", loadComponent: () => import("./form-page/form-page.component").then((m) => m.FormPageComponent) },
     { path: "plugin", pathMatch: "full", component: PluginPageComponent },
-    { path: "formly", loadComponent: () => import("./lazy-formly/lazy-formly.component").then((mod) => mod.LazyFormlyComponent) },
+    // { path: "plugin", loadComponent: () => import("./plugin-page/plugin-page.component").then((m) => m.PluginPageComponent) },
+    { path: "formly", loadComponent: () => import("./lazy-formly/lazy-formly.component").then((m) => m.FormlyPageComponent) },
+    // { path: "formly", loadChildren: () => import("./lazy-formly/lazy-formly.component").then((mod) => mod.FormlyLazyModule) },
 ];
 
 @NgModule({

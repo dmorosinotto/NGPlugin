@@ -24,7 +24,7 @@ declare var $: any;
         </form>
     `,
     styles: ["form { background-color: lightblue; padding: 10px }", "fieldset { display: flex; }"],
-    // changeDetection: ChangeDetectionStrategy.OnPush,
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TryGenericLookupComponent<M = any | null, I = string | null, T = string> implements AfterViewInit {
     @ViewChild("txt", { read: ElementRef, static: true }) txt!: ElementRef;

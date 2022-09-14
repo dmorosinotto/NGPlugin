@@ -17,8 +17,8 @@ export interface FormlyLookupFieldConfig extends FormlyFieldConfig<LookupProps> 
 
 @Component({
     selector: "formly-field-lookup",
-    standalone: true,
-    imports: [CommonModule, FormlyModule, ReactiveFormsModule, NGenericLookupComponent],
+    // standalone: true,
+    // imports: [CommonModule, FormlyModule, ReactiveFormsModule, NGenericLookupComponent],
     template: `
         <n-generic-lookup
             [formControl]="formControl"
