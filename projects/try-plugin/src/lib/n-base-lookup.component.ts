@@ -4,11 +4,9 @@ declare var $: any;
 @Directive({
     selector: "n-base-lookup",
     standalone: true,
-    providers: [{ provide: NG_VALUE_ACCESSOR, useExisting: NBaseLookupComponent, multi: true }],
+    // providers: [{ provide: NG_VALUE_ACCESSOR, useExisting: NBaseLookupComponent, multi: true }], //PURTROPPO QUESTO NON FUNZIONA SULLA ABSTRACT DEVO FARE IL PROVIDER NELLA CLASSE EREDITARE
 })
-export abstract class NBaseLookupComponent<M = any | null, I = string | null, T = string>
-    implements AfterViewInit, OnDestroy, ControlValueAccessor
-{
+export abstract class NBaseLookupComponent<M = any, I = string, T = string> implements AfterViewInit, OnDestroy, ControlValueAccessor {
     constructor() {
         console.log(this.constructor.name, "on ctor", this.txt?.nativeElement ?? "NOT READY!"); //NOT READY
     }
@@ -38,11 +36,11 @@ export abstract class NBaseLookupComponent<M = any | null, I = string | null, T 
     @ViewChild("txt", { read: ElementRef, static: true }) txt!: ElementRef;
     @ViewChild("btn", { read: ElementRef, static: true }) btn!: ElementRef;
     @ViewChild("hid", { read: ElementRef, static: true }) hid!: ElementRef;
-    private init: any;
+    private init: any; //PLUGIN INSTANCE $.genericLookup
 
     ngAfterViewInit(): void {
         console.log(this.constructor.name, "on ngAfterViewInit", this.txt?.nativeElement ?? "NOT READY!"); //OK
-        console.info(this.constructor.name, "on ngAfterViewInit CURRENT", this.type);
+        console.info(this.constructor.name, "on ngAfterViewInit CURRENT", this.type, typeof this._txtFn, typeof this._hidFn);
         if (!this.type) {
             console.error("CAN'T INIT BaseLookup PLUGIN MISSING TYPE!!!", this.type);
         } else {
@@ -52,7 +50,7 @@ export abstract class NBaseLookupComponent<M = any | null, I = string | null, T 
                 button: $(this.btn.nativeElement),
                 hiddenControl: $(this.hid.nativeElement),
                 remote: false, //this.remote,
-                idField: (model: M) => {
+                idField: (model: M | null) => {
                     const value = model == null ? null : this._hidFn(model);
                     console.warn(this.constructor.name, "idField nativeElement", model, "->", value);
                     this._update(model, "");
@@ -60,7 +58,7 @@ export abstract class NBaseLookupComponent<M = any | null, I = string | null, T 
                 autocomplete: true,
                 autocompleteOnLoad: true,
                 pageSize: 5, //this.pageSize,
-                selectedElement: (model: M) => {
+                selectedElement: (model: M | null) => {
                     const text = model == null ? "" : this._txtFn(model);
                     console.warn(
                         this.constructor.name,
@@ -118,7 +116,7 @@ export abstract class NBaseLookupComponent<M = any | null, I = string | null, T 
     // @Input() pageSize?: number = 5;
     // @Input() remote?: boolean = false;
 
-    @Input() set model(model: M) {
+    @Input() set model(model: M | null) {
         if (model === undefined) {
             console.info(this.constructor.name, "IGNORE MODEL NOT SET === undefined");
             return;
@@ -130,13 +128,13 @@ export abstract class NBaseLookupComponent<M = any | null, I = string | null, T 
             console.info(this.constructor.name, model, "MODEL IS SAME");
         }
     }
-    get model(): M {
+    get model(): M | null {
         return this._model!;
     }
-    private _model?: M;
-    @Output() modelChange = new EventEmitter<M>();
+    private _model?: M | null;
+    @Output() modelChange = new EventEmitter<M | null>();
 
-    @Input() set value(value: I) {
+    @Input() set value(value: I | null) {
         if (value === undefined) {
             console.info(this.constructor.name, "IGNORE VALUE NOT SET === undefined");
             return;
@@ -155,25 +153,25 @@ export abstract class NBaseLookupComponent<M = any | null, I = string | null, T 
             console.info(this.constructor.name, value, "VALUE IS SAME");
         }
     }
-    get value(): I {
+    get value(): I | null {
         return this._value!;
     }
-    @Output() valueChange = new EventEmitter<I>();
-    private _value?: I;
+    @Output() valueChange = new EventEmitter<I | null>();
+    private _value?: I | null;
 
-    protected abstract _txtFn: (model: M) => T;
-    protected abstract _hidFn: (model: M) => I;
+    protected abstract _txtFn: (model: M | null) => T;
+    protected abstract _hidFn: (model: M | null) => I;
 
     @Input() immutable?: boolean;
-    @Output() change = new EventEmitter<{ text: T; value: I; model: M; old: M }>();
-    private _issame = (old: M, cur: M) => (!!this.immutable && old === cur) || JSON.stringify(old) == JSON.stringify(cur);
+    @Output() change = new EventEmitter<{ text: T | ""; value: I | null; model: M | null; old: M | null }>();
+    private _issame = (old: M | null, cur: M | null) => (!!this.immutable && old === cur) || JSON.stringify(old) == JSON.stringify(cur);
 
-    private _update(model: M, noemit: "" | "model" | "value" = "") {
+    private _update(model: M | null, noemit: "" | "model" | "value" = "") {
         if (model === undefined) return; //EVITO INIZIALIZZAZIONE SE VALORE NON SPECIFICATO
         const old = this.model;
         const changed = !this._issame(old, model);
-        const value = model == null ? (null as I) : this._hidFn(model);
-        const text = model == null ? ("" as T) : this._txtFn(model);
+        const value = model == null ? null : this._hidFn(model);
+        const text = model == null ? "" : this._txtFn(model);
         this._model = model;
         this._value = value;
         // this.hid.nativeElement.value = value; // $(this.hid.nativeElement).val(value);

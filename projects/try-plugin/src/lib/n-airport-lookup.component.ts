@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { CommonModule } from "@angular/common";
+import { NG_VALUE_ACCESSOR } from "@angular/forms";
 import { NBaseLookupComponent } from "./n-base-lookup.component";
 
 export type AirportModel = {
@@ -17,11 +18,12 @@ export type AirportModel = {
     styleUrls: ["./n-base-lookup.component.css"],
     standalone: true,
     imports: [CommonModule],
+    providers: [{ provide: NG_VALUE_ACCESSOR, useExisting: NAirportLookupComponent, multi: true }],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NAirportLookupComponent extends NBaseLookupComponent<AirportModel, AirportModel["Airport"]> {
-    protected _txtFn = (m: AirportModel) => (m ? `${m.City} - ${m.Description}` : "");
-    protected _hidFn = (m: AirportModel) => m?.Airport;
+    protected _txtFn = (m: AirportModel | null) => (m ? `${m.City} - ${m.Description}` : "");
+    protected _hidFn = (m: AirportModel | null) => m?.Airport ?? "";
 
     constructor() {
         super();

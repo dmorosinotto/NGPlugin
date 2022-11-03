@@ -5,14 +5,23 @@ import { ReactiveFormsModule } from "@angular/forms";
 import { FormlyModule, FieldType, FieldTypeConfig, FormlyFieldProps, FormlyFieldConfig } from "@ngx-formly/core";
 import { NGenericLookupComponent } from "@app/try-plugin";
 
-interface LookupProps extends FormlyFieldProps {
-    type: string;
-    idField: string;
+interface LookupProps<M = any> extends FormlyFieldProps {
+    lookup: string;
+    idField: keyof M;
     immutable?: boolean;
+    formatter?: (m: M | null) => string;
 }
 
 export interface FormlyLookupFieldConfig extends FormlyFieldConfig<LookupProps> {
     type: "lookup" | Type<FormlyFieldLookup>;
+}
+
+export function lookupField<M = any>(key: string, props: LookupProps<M>, label?: string, required?: boolean): FormlyLookupFieldConfig {
+    return {
+        type: "lookup",
+        key,
+        props: { ...props, label, required },
+    };
 }
 
 @Component({
@@ -24,8 +33,9 @@ export interface FormlyLookupFieldConfig extends FormlyFieldConfig<LookupProps> 
             [formControl]="formControl"
             [formlyAttributes]="field"
             [(model)]="formState.lookup[$any(key)]"
-            [type]="props.type"
+            [type]="props.lookup"
             [idField]="props.idField"
+            [formatter]="props.formatter"
             [immutable]="props.immutable"
         ></n-generic-lookup>
     `,
@@ -35,8 +45,8 @@ export interface FormlyLookupFieldConfig extends FormlyFieldConfig<LookupProps> 
 export class FormlyFieldLookup extends FieldType<FieldTypeConfig<LookupProps>> {
     override defaultOptions = {
         props: {
-            type: "Aircraft" as const,
-            idField: "Aircraft_Sub_Iata" as const,
+            lookup: "",
+            idField: "",
         },
     };
 }

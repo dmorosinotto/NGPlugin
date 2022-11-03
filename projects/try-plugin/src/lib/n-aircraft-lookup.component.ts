@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { CommonModule } from "@angular/common";
+import { NG_VALUE_ACCESSOR } from "@angular/forms";
 import { NBaseLookupComponent } from "./n-base-lookup.component";
 
 export type AircraftModel = {
@@ -26,11 +27,12 @@ export type AircraftModel = {
     styleUrls: ["./n-base-lookup.component.css"],
     standalone: true,
     imports: [CommonModule],
+    providers: [{ provide: NG_VALUE_ACCESSOR, useExisting: NAircraftLookupComponent, multi: true }],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NAircraftLookupComponent extends NBaseLookupComponent<AircraftModel, AircraftModel["Aircraft_Sub_Iata"]> {
-    protected _txtFn = (m: AircraftModel) => (m ? `${m.Aircraft_Icao} (${m.Aircraft_Sub_Iata}) - ${m.Description}` : "");
-    protected _hidFn = (m: AircraftModel) => m?.Aircraft_Sub_Iata;
+    protected _txtFn = (m: AircraftModel | null) => (m ? `${m.Aircraft_Icao} (${m.Aircraft_Sub_Iata}) - ${m.Description}` : "");
+    protected _hidFn = (m: AircraftModel | null) => m?.Aircraft_Sub_Iata ?? "";
 
     constructor() {
         super();

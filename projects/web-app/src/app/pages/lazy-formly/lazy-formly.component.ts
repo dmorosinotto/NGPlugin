@@ -3,6 +3,8 @@ import { Component, NgModule } from "@angular/core";
 import { Routes, RouterModule } from "@angular/router";
 import { ReactiveFormsModule, FormGroup } from "@angular/forms";
 import { FormlyModule, FormlyFieldConfig, FormlyFormOptions } from "@ngx-formly/core";
+import { lookupField } from "@app/formly-custom";
+import { AircraftModel, AirportModel } from "@app/try-plugin";
 
 @Component({
     selector: "app-formly-page",
@@ -37,6 +39,7 @@ export class FormlyPageComponent {
         email: "Ciao@pippo.it",
         from: "1975-03-20Z",
         aircraft: "101",
+        airport: "VCE",
     };
     public state = {
         lookup: {
@@ -83,12 +86,42 @@ export class FormlyPageComponent {
                 },
             },
         },
+        lookupField<AircraftModel>(
+            "aircraft",
+            {
+                lookup: "Aircraft",
+                idField: "Aircraft_Sub_Iata",
+                formatter: (m) => `${m?.Aircraft_Icao} - ${m?.Description}`,
+            },
+            "Select generic aircraft"
+        ),
+        /*
         {
             key: "aircraft",
             type: "lookup",
             templateOptions: {
-                label: "Select generic",
+                label: "Select generic aircraft",
                 required: true,
+                lookup: "Aircraft",
+                idField: "Aircraft_Sub_Iata",
+                formatter: (m: any) => `${m.Aircraft_Icao} - ${m.Description}`,
+                // immutable: true,
+                change: (field, event) => {
+                    console.group("%cLOOKUP SELECTED change " + field.key, "background-color: pink");
+                    console.log(event);
+                    console.groupEnd();
+                },
+            },
+        },
+        */
+        {
+            key: "airport",
+            type: "lookup",
+            templateOptions: {
+                label: "Select generic airport",
+                required: true,
+                lookup: "Airport",
+                idField: "Airport",
                 // immutable: true,
                 change: (field, event) => {
                     console.group("%cLOOKUP SELECTED change " + field.key, "background-color: cyan");
@@ -97,6 +130,7 @@ export class FormlyPageComponent {
                 },
             },
         },
+        // lookupField("airport", { lookup: "Airport", idField: "Airport"}, "Select generic airport", true),
         {
             key: "aereo",
             type: "aircraft",
@@ -108,7 +142,7 @@ export class FormlyPageComponent {
             },
         },
         {
-            key: "aeroporto",
+            key: "airport", //"scalo",
             type: "airport",
             templateOptions: {
                 label: "Select airport",
