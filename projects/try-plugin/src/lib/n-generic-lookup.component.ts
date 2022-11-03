@@ -198,7 +198,7 @@ export class NGenericLookupComponent<M = any | null, I = string | null, T = stri
 
     @Input() immutable?: boolean;
     @Output() change = new EventEmitter<{ text: T; value: I; model: M; old: M }>();
-    private _issame = (old: any, cur: any) => (this.immutable && old === cur) || JSON.stringify(old) == JSON.stringify(cur);
+    private _issame = (old: any, cur: any) => (!!this.immutable && old === cur) || JSON.stringify(old) == JSON.stringify(cur);
 
     private _update(model: M, noemit: "" | "model" | "value" = "") {
         if (model === undefined) return; //EVITO INIZIALIZZAZIONE SE VALORE NON SPECIFICATO
@@ -235,7 +235,7 @@ export class NGenericLookupComponent<M = any | null, I = string | null, T = stri
             $(this.hid.nativeElement).val(),
             text,
             "<==>",
-            $(this.txt.nativeElement).val()
+            $(this.txt.nativeElement).val() //QUESTO NON E' ANCORA AGGIORNATO
         );
     }
 }
