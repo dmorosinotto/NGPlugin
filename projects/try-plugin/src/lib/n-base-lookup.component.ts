@@ -1,33 +1,12 @@
-import {
-    AfterViewInit,
-    OnDestroy,
-    ChangeDetectionStrategy,
-    Component,
-    ElementRef,
-    EventEmitter,
-    Input,
-    Output,
-    ViewChild,
-} from "@angular/core";
+import { AfterViewInit, OnDestroy, Directive, ElementRef, EventEmitter, Input, Output, ViewChild } from "@angular/core";
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
-import { CommonModule } from "@angular/common";
 declare var $: any;
-@Component({
-    selector: "n-generic-lookup",
+@Directive({
+    selector: "n-base-lookup",
     standalone: true,
-    imports: [CommonModule],
-    template: `
-        <fieldset>
-            <input type="text" #txt /><button type="button" #btn>...</button>
-            <input type="hidden" #hid [value]="value" />
-            <legend>Model: {{ model | json }} <-> Value: {{ value }}</legend>
-        </fieldset>
-    `,
-    styles: ["fieldset { display: flex; }", "legend { font-size: 0.75em; float: right; margin: 0 }"],
-    providers: [{ provide: NG_VALUE_ACCESSOR, useExisting: NGenericLookupComponent, multi: true }],
-    changeDetection: ChangeDetectionStrategy.OnPush,
+    providers: [{ provide: NG_VALUE_ACCESSOR, useExisting: NBaseLookupComponent, multi: true }],
 })
-export class NGenericLookupComponent<M = any | null, I = string | null, T = string>
+export abstract class NBaseLookupComponent<M = any | null, I = string | null, T = string>
     implements AfterViewInit, OnDestroy, ControlValueAccessor
 {
     constructor() {
@@ -63,9 +42,9 @@ export class NGenericLookupComponent<M = any | null, I = string | null, T = stri
 
     ngAfterViewInit(): void {
         console.log(this.constructor.name, "on ngAfterViewInit", this.txt?.nativeElement ?? "NOT READY!"); //OK
-        console.info(this.constructor.name, "on ngAfterViewInit CURRENT", this.type, this.idField);
-        if (!this.type || !this.idField) {
-            console.error("CAN'T INIT genericLookup PLUGIN MISSING", this.type, this.idField);
+        console.info(this.constructor.name, "on ngAfterViewInit CURRENT", this.type);
+        if (!this.type) {
+            console.error("CAN'T INIT BaseLookup PLUGIN MISSING TYPE!!!", this.type);
         } else {
             //$(function () {
             this.init = $(this.txt.nativeElement).genericLookup({
@@ -74,15 +53,15 @@ export class NGenericLookupComponent<M = any | null, I = string | null, T = stri
                 hiddenControl: $(this.hid.nativeElement),
                 remote: false, //this.remote,
                 idField: (model: M) => {
-                    const val: I = this._hidFn(model);
-                    console.warn(this.constructor.name, "idField nativeElement", model, "->", val);
+                    const value = model == null ? null : this._hidFn(model);
+                    console.warn(this.constructor.name, "idField nativeElement", model, "->", value);
                     this._update(model, "");
                 },
                 autocomplete: true,
                 autocompleteOnLoad: true,
                 pageSize: 5, //this.pageSize,
                 selectedElement: (model: M) => {
-                    const text: T = this._txtFn(model);
+                    const text = model == null ? "" : this._txtFn(model);
                     console.warn(
                         this.constructor.name,
                         "selectedElement nativeElement after idField ->",
@@ -136,7 +115,6 @@ export class NGenericLookupComponent<M = any | null, I = string | null, T = stri
     }
 
     @Input() type!: string; // = "Aircraft";
-    @Input() idField!: string; // = "Aircraft_Sub_Iata";
     // @Input() pageSize?: number = 5;
     // @Input() remote?: boolean = false;
 
@@ -183,18 +161,8 @@ export class NGenericLookupComponent<M = any | null, I = string | null, T = stri
     @Output() valueChange = new EventEmitter<I>();
     private _value?: I;
 
-    private _txtFn = (model: M): T => {
-        if (model == null) return "" as any as T;
-        else {
-            const m: any = model;
-            return `${m.Aircraft_Icao} (${m.Aircraft_Sub_Iata}) - ${m.Description}` as any as T;
-        }
-    };
-    private _hidFn = (model: M): I => {
-        const m: any = model;
-        if (m == null) return m as I; //null
-        return m[this.idField] as I;
-    };
+    protected abstract _txtFn: (model: M) => T;
+    protected abstract _hidFn: (model: M) => I;
 
     @Input() immutable?: boolean;
     @Output() change = new EventEmitter<{ text: T; value: I; model: M; old: M }>();
@@ -204,8 +172,8 @@ export class NGenericLookupComponent<M = any | null, I = string | null, T = stri
         if (model === undefined) return; //EVITO INIZIALIZZAZIONE SE VALORE NON SPECIFICATO
         const old = this.model;
         const changed = !this._issame(old, model);
-        const value: I = this._hidFn(model);
-        const text: T = this._txtFn(model);
+        const value = model == null ? (null as I) : this._hidFn(model);
+        const text = model == null ? ("" as T) : this._txtFn(model);
         this._model = model;
         this._value = value;
         // this.hid.nativeElement.value = value; // $(this.hid.nativeElement).val(value);
@@ -235,7 +203,7 @@ export class NGenericLookupComponent<M = any | null, I = string | null, T = stri
             $(this.hid.nativeElement).val(),
             text,
             "<==>",
-            $(this.txt.nativeElement).val() //QUESTO NON E' ANCORA AGGIORNATO
+            $(this.txt.nativeElement).val() //QUESTO NON E' ANCORA AGGIORNATO (CAMBIA SUBITO DOPO...)
         );
     }
 }

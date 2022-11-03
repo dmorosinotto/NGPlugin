@@ -36,7 +36,7 @@ export class FormlyPageComponent {
     public model = {
         email: "Ciao@pippo.it",
         from: "1975-03-20Z",
-        // aircraft: "100",
+        aircraft: "101",
     };
     public state = {
         lookup: {
@@ -87,7 +87,7 @@ export class FormlyPageComponent {
             key: "aircraft",
             type: "lookup",
             templateOptions: {
-                label: "Select aircraft",
+                label: "Select generic",
                 required: true,
                 // immutable: true,
                 change: (field, event) => {
@@ -95,6 +95,26 @@ export class FormlyPageComponent {
                     console.log(event);
                     console.groupEnd();
                 },
+            },
+        },
+        {
+            key: "aereo",
+            type: "aircraft",
+            templateOptions: {
+                label: "Select aircraft",
+                required: true,
+                // immutable: true,
+                change: (field, event) => console.warn("AIRCRAFT SELECTED", field.key, "->", event),
+            },
+        },
+        {
+            key: "aeroporto",
+            type: "airport",
+            templateOptions: {
+                label: "Select airport",
+                required: true,
+                // immutable: true,
+                change: (field, event) => console.error("AIRPORT SELECTED", field.key, "->", event),
             },
         },
     ];
