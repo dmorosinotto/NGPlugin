@@ -12,6 +12,9 @@ export type AirportModel = {
     ig_pk: number;
 };
 
+export const formatAirport = (m: AirportModel | null) => (m ? `${m.City} - ${m.Description}` : "");
+export const getIDAirport = (m: AirportModel | null) => m?.Airport ?? "";
+
 @Component({
     selector: "n-airport-lookup",
     templateUrl: "./n-base-lookup.component.html",
@@ -22,8 +25,8 @@ export type AirportModel = {
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NAirportLookupComponent extends NBaseLookupComponent<AirportModel, AirportModel["Airport"]> {
-    protected _txtFn = (m: AirportModel | null) => (m ? `${m.City} - ${m.Description}` : "");
-    protected _hidFn = (m: AirportModel | null) => m?.Airport ?? "";
+    protected _txtFn = formatAirport;
+    protected _hidFn = getIDAirport;
 
     constructor() {
         super();

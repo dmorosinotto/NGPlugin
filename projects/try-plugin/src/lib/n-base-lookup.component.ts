@@ -1,11 +1,12 @@
 import { AfterViewInit, OnDestroy, Directive, ElementRef, EventEmitter, Input, Output, ViewChild } from "@angular/core";
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
 declare var $: any;
-@Directive({
+export type LookupChangeEvent<M = any, I = string, T = string> = { text: T | ""; value: I | null; model: M | null; old: M | null };
+@Directive(/*{
     selector: "n-base-lookup",
     standalone: true,
     // providers: [{ provide: NG_VALUE_ACCESSOR, useExisting: NBaseLookupComponent, multi: true }], //PURTROPPO QUESTO NON FUNZIONA SULLA ABSTRACT DEVO FARE IL PROVIDER NELLA CLASSE EREDITARE
-})
+}*/)
 export abstract class NBaseLookupComponent<M = any, I = string, T = string> implements AfterViewInit, OnDestroy, ControlValueAccessor {
     constructor() {
         console.log(this.constructor.name, "on ctor", this.txt?.nativeElement ?? "NOT READY!"); //NOT READY
@@ -163,7 +164,7 @@ export abstract class NBaseLookupComponent<M = any, I = string, T = string> impl
     protected abstract _hidFn: (model: M | null) => I;
 
     @Input() immutable?: boolean;
-    @Output() change = new EventEmitter<{ text: T | ""; value: I | null; model: M | null; old: M | null }>();
+    @Output() change = new EventEmitter<LookupChangeEvent<M, I, T>>();
     private _issame = (old: M | null, cur: M | null) => (!!this.immutable && old === cur) || JSON.stringify(old) == JSON.stringify(cur);
 
     private _update(model: M | null, noemit: "" | "model" | "value" = "") {

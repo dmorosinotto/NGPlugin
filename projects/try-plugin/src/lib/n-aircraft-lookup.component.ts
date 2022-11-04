@@ -21,6 +21,9 @@ export type AircraftModel = {
     Selected: boolean;
 };
 
+export const formatAircraft = (m: AircraftModel | null) => (m ? `${m.Aircraft_Icao} (${m.Aircraft_Sub_Iata}) - ${m.Description}` : "");
+export const getIDAircraft = (m: AircraftModel | null) => m?.Aircraft_Sub_Iata ?? "";
+
 @Component({
     selector: "n-aircraft-lookup",
     templateUrl: "./n-base-lookup.component.html",
@@ -31,8 +34,8 @@ export type AircraftModel = {
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NAircraftLookupComponent extends NBaseLookupComponent<AircraftModel, AircraftModel["Aircraft_Sub_Iata"]> {
-    protected _txtFn = (m: AircraftModel | null) => (m ? `${m.Aircraft_Icao} (${m.Aircraft_Sub_Iata}) - ${m.Description}` : "");
-    protected _hidFn = (m: AircraftModel | null) => m?.Aircraft_Sub_Iata ?? "";
+    protected _txtFn = formatAircraft;
+    protected _hidFn = getIDAircraft;
 
     constructor() {
         super();

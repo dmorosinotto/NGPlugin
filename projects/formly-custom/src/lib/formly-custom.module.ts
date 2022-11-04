@@ -1,15 +1,24 @@
 import { CommonModule } from "@angular/common";
 import { NgModule } from "@angular/core";
 import { ReactiveFormsModule, Validators } from "@angular/forms";
-import { NAirportLookupComponent, NDatePickerComponent, NGenericLookupComponent } from "@app/try-plugin";
+import {
+    NAirportLookupComponent,
+    NDatePickerComponent,
+    NGenericLookupComponent,
+    NAircraftLookupComponent,
+    AircraftModel,
+    formatAircraft,
+    getIDAircraft,
+    AirportModel,
+    formatAirport,
+} from "@app/try-plugin";
 
 import { FormlyModule } from "@ngx-formly/core";
-import { NAircraftLookupComponent } from "projects/try-plugin/src/lib/n-aircraft-lookup.component";
 import { FormlyFieldAircraftLookup } from "./fields/field-aircraft.component";
 import { FormlyFieldAirportLookup } from "./fields/field-airport.component";
 
 import { FormlyFieldDate } from "./fields/field-date.component";
-import { FormlyFieldLookup } from "./fields/field-lookup.component";
+import { FormlyFieldLookup, LookupProps } from "./fields/field-lookup.component";
 import { FormlyFieldText } from "./fields/field-text.component";
 import { FormlyWrapperPanel } from "./fields/wrapper-panel.component";
 
@@ -36,8 +45,30 @@ import { FormlyWrapperPanel } from "./fields/wrapper-panel.component";
                 { name: "text", component: FormlyFieldText, wrappers: ["panel"] },
                 { name: "date", component: FormlyFieldDate, wrappers: ["panel"] },
                 { name: "lookup", component: FormlyFieldLookup, wrappers: ["panel"] },
-                { name: "aircraft", component: FormlyFieldAircraftLookup, wrappers: ["panel"] },
-                { name: "airport", component: FormlyFieldAirportLookup, wrappers: ["panel"] },
+                // { name: "aircraft", component: FormlyFieldAircraftLookup, wrappers: ["panel"] },
+                {
+                    name: "aircraft",
+                    extends: "lookup",
+                    defaultOptions: {
+                        props: {
+                            lookup: "Aircraft",
+                            formatter: formatAircraft,
+                            idField: getIDAircraft,
+                        } as LookupProps<AircraftModel>,
+                    },
+                },
+                // { name: "airport", component: FormlyFieldAirportLookup, wrappers: ["panel"] },
+                {
+                    name: "airport",
+                    extends: "lookup",
+                    defaultOptions: {
+                        props: {
+                            lookup: "Airport",
+                            formatter: formatAirport,
+                            idField: "Airport_Icao",
+                        } as LookupProps<AirportModel>,
+                    },
+                },
             ],
             validators: [{ name: "email", validation: Validators.email }],
             validationMessages: [

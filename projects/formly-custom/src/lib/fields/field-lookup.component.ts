@@ -3,20 +3,21 @@ import { ChangeDetectionStrategy, Component, Type } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 
 import { FormlyModule, FieldType, FieldTypeConfig, FormlyFieldProps, FormlyFieldConfig } from "@ngx-formly/core";
-import { NGenericLookupComponent } from "@app/try-plugin";
+import { LookupChangeEvent, NGenericLookupComponent } from "@app/try-plugin";
 
-interface LookupProps<M = any> extends FormlyFieldProps {
+export interface LookupProps<M = any> extends FormlyFieldProps {
     lookup: string;
-    idField: keyof M;
+    idField: keyof M | ((m: M | null) => any);
     immutable?: boolean;
     formatter?: (m: M | null) => string;
+    change?: (field: FormlyFieldConfig, event: LookupChangeEvent<M>) => void;
 }
 
-export interface FormlyLookupFieldConfig extends FormlyFieldConfig<LookupProps> {
+export interface FormlyLookupFieldConfig<M = any> extends FormlyFieldConfig<LookupProps<M>> {
     type: "lookup" | Type<FormlyFieldLookup>;
 }
 
-export function lookupField<M = any>(key: string, props: LookupProps<M>, label?: string, required?: boolean): FormlyLookupFieldConfig {
+export function lookupField<M = any>(label: string, key: string, props: LookupProps<M>, required?: boolean): FormlyLookupFieldConfig {
     return {
         type: "lookup",
         key,
@@ -45,8 +46,8 @@ export function lookupField<M = any>(key: string, props: LookupProps<M>, label?:
 export class FormlyFieldLookup extends FieldType<FieldTypeConfig<LookupProps>> {
     override defaultOptions = {
         props: {
-            lookup: "",
-            idField: "",
+            lookup: "", //MUST BE SPECIFIED IN FieldConfig
+            idField: "", //MUST BE SPECIFIED IN FieldConfig
         },
     };
 }

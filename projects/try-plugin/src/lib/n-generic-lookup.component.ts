@@ -24,7 +24,7 @@ export class NGenericLookupComponent<M = any, K extends keyof M = keyof M> exten
         if (!this.idField) {
             console.error("CAN'T INIT NGenericLookupComponent MISSING IDFIELD!!!", this.idField);
         } else {
-            this._hidFn = (m) => (m ? m[this.idField] : (null as M[K]));
+            this._hidFn = typeof this.idField === "function" ? this.idField : (m) => (m ? m[this.idField as K] : (null as M[K]));
             if (typeof this.formatter === "function") {
                 this._txtFn = this.formatter;
             } else {
@@ -34,6 +34,6 @@ export class NGenericLookupComponent<M = any, K extends keyof M = keyof M> exten
         console.warn(this.constructor.name, "after ngOnInit SET FN", this._txtFn, this._hidFn);
     }
 
-    @Input() idField!: K; // = "Aircraft_Sub_Iata";
+    @Input() idField!: K | ((model: M | null) => M[K]); // = "Aircraft_Sub_Iata";
     @Input() formatter?: (model: M | null) => string;
 }

@@ -31,7 +31,7 @@ export interface FormlyAircraftLookupFieldConfig extends FormlyFieldConfig<Aircr
 export class FormlyFieldAircraftLookup extends FieldType<FieldTypeConfig<AircraftLookupProps>> {
     override defaultOptions = {
         props: {
-            immutable: false,
+            immutable: true,
         },
     };
 }

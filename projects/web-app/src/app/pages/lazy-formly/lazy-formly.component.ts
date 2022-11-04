@@ -3,7 +3,7 @@ import { Component, NgModule } from "@angular/core";
 import { Routes, RouterModule } from "@angular/router";
 import { ReactiveFormsModule, FormGroup } from "@angular/forms";
 import { FormlyModule, FormlyFieldConfig, FormlyFormOptions } from "@ngx-formly/core";
-import { lookupField } from "@app/formly-custom";
+import { FormlyLookupFieldConfig, lookupField } from "@app/formly-custom";
 import { AircraftModel, AirportModel } from "@app/try-plugin";
 
 @Component({
@@ -38,8 +38,9 @@ export class FormlyPageComponent {
     public model = {
         email: "Ciao@pippo.it",
         from: "1975-03-20Z",
-        aircraft: "101",
-        airport: "VCE",
+        aereo: "101",
+        scalo: "VCE",
+        // airport: "LIPZ",
     };
     public state = {
         lookup: {
@@ -86,22 +87,18 @@ export class FormlyPageComponent {
                 },
             },
         },
-        lookupField<AircraftModel>(
-            "aircraft",
-            {
-                lookup: "Aircraft",
-                idField: "Aircraft_Sub_Iata",
-                formatter: (m) => `${m?.Aircraft_Icao} - ${m?.Description}`,
-            },
-            "Select generic aircraft"
-        ),
+        lookupField<AircraftModel>("Select generic aereo", "aereo", {
+            lookup: "Aircraft",
+            idField: "Aircraft_Sub_Iata",
+            formatter: (m) => `${m?.Aircraft_Icao} - ${m?.Description}`,
+        }),
         /*
         {
             key: "aircraft",
             type: "lookup",
             templateOptions: {
                 label: "Select generic aircraft",
-                required: true,
+                // required: false,
                 lookup: "Aircraft",
                 idField: "Aircraft_Sub_Iata",
                 formatter: (m: any) => `${m.Aircraft_Icao} - ${m.Description}`,
@@ -115,37 +112,42 @@ export class FormlyPageComponent {
         },
         */
         {
-            key: "airport",
+            key: "scalo",
             type: "lookup",
-            templateOptions: {
-                label: "Select generic airport",
-                required: true,
+            props: {
+                label: "Select generic scalo",
+                // required: false,
                 lookup: "Airport",
                 idField: "Airport",
                 // immutable: true,
                 change: (field, event) => {
                     console.group("%cLOOKUP SELECTED change " + field.key, "background-color: cyan");
-                    console.log(event);
+                    console.error("CHANGE", field.key, event, "model=", JSON.stringify(field.model)); //, "field=", field);
                     console.groupEnd();
+                    //ESEMPIO DI SINCRONIZZAZIONE CAMPO scalo -> airport
+                    // field.model.airport = event.model?.Airport_Icao;
+                    // field.options!.formState.lookup.airport = event.model;
+                    // (this.state.lookup as any)["airport"] = event.model;
+                    // console.info("AFTER CHANGE SYNC", JSON.stringify(field.model));
                 },
             },
-        },
-        // lookupField("airport", { lookup: "Airport", idField: "Airport"}, "Select generic airport", true),
+        } as FormlyLookupFieldConfig<AirportModel>,
+        // lookupField("Select generic airport", "airport", { lookup: "Airport", idField: "Airport"}),
         {
             key: "aereo",
             type: "aircraft",
             templateOptions: {
-                label: "Select aircraft",
+                label: "Select aereo",
                 required: true,
                 // immutable: true,
-                change: (field, event) => console.warn("AIRCRAFT SELECTED", field.key, "->", event),
+                change: (field, event) => console.warn("AEREO SELECTED", field.key, "->", event),
             },
         },
         {
             key: "airport", //"scalo",
-            type: "airport",
+            type: "airport", //"Airport_Icao"
             templateOptions: {
-                label: "Select airport",
+                label: "Select airport ICAO",
                 required: true,
                 // immutable: true,
                 change: (field, event) => console.error("AIRPORT SELECTED", field.key, "->", event),
