@@ -14,6 +14,24 @@ import {
     formatFlightQualification,
     getIDFlightQualification,
     FlightQualificationModel,
+    formatFlightType,
+    getIDFlightType,
+    FlightTypeModel,
+    ServiceTypeModel,
+    getIDServiceType,
+    formatServiceType,
+    CountryModel,
+    formatCountry,
+    getIDCountry,
+    formatCustomer,
+    getIDCustomer,
+    CustomerModel,
+    formatHandler,
+    getIDHandler,
+    HandlerModel,
+    formatRegistration,
+    getIDRegistration,
+    RegistrationModel,
 } from "@app/try-plugin";
 
 import { FormlyModule } from "@ngx-formly/core";
@@ -81,6 +99,72 @@ import { FormlyWrapperPanel } from "./fields/wrapper-panel.component";
                             formatter: formatFlightQualification,
                             idField: getIDFlightQualification,
                         } as LookupProps<FlightQualificationModel>,
+                    },
+                },
+                {
+                    name: "flighttype",
+                    extends: "lookup",
+                    defaultOptions: {
+                        props: {
+                            lookup: "FlightType",
+                            formatter: formatFlightType,
+                            idField: getIDFlightType,
+                        } as LookupProps<FlightTypeModel>,
+                    },
+                },
+                {
+                    name: "servicetype",
+                    extends: "lookup",
+                    defaultOptions: {
+                        props: {
+                            lookup: "ServiceType",
+                            formatter: formatServiceType,
+                            idField: getIDServiceType,
+                        } as LookupProps<ServiceTypeModel>,
+                    },
+                },
+                {
+                    name: "country",
+                    extends: "lookup",
+                    defaultOptions: {
+                        props: {
+                            lookup: "Country",
+                            formatter: formatCountry,
+                            idField: getIDCountry,
+                        } as LookupProps<CountryModel>,
+                    },
+                },
+                {
+                    name: "customer",
+                    extends: "lookup",
+                    defaultOptions: {
+                        props: {
+                            lookup: "Customers",
+                            formatter: formatCustomer,
+                            idField: getIDCustomer,
+                        } as LookupProps<CustomerModel>,
+                    },
+                },
+                {
+                    name: "handler",
+                    extends: "lookup",
+                    defaultOptions: {
+                        props: {
+                            lookup: "Handler",
+                            formatter: formatHandler,
+                            idField: getIDHandler,
+                        } as LookupProps<HandlerModel>,
+                    },
+                },
+                {
+                    name: "registration",
+                    extends: "lookup",
+                    defaultOptions: {
+                        props: {
+                            lookup: "Registration",
+                            formatter: formatRegistration,
+                            idField: getIDRegistration,
+                        } as LookupProps<RegistrationModel>,
                     },
                 },
             ],

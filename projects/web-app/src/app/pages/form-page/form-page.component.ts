@@ -12,6 +12,9 @@ import {
     NFlightTypeLookupComponent,
     NServiceTypeLookupComponent,
     NCountryLookupComponent,
+    NCustomersLookupComponent,
+    NHandlersLookupComponent,
+    NRegistrationLookupComponent,
 } from "@app/try-plugin";
 
 @Component({
@@ -29,6 +32,9 @@ import {
         NFlightTypeLookupComponent,
         NServiceTypeLookupComponent,
         NCountryLookupComponent,
+        NCustomersLookupComponent,
+        NHandlersLookupComponent,
+        NRegistrationLookupComponent,
     ],
     template: `
         <p>form-page works!</p>
@@ -67,6 +73,9 @@ import {
         <label>FLIGHT TYPE: <n-flight-type-lookup [(value)]="v.ft" [(model)]="m.ft"></n-flight-type-lookup></label>
         <label>SERVICE TYPE: <n-service-type-lookup [(value)]="v.st" [(model)]="m.st"></n-service-type-lookup></label>
         <label>COUNTRY: <n-country-lookup [(value)]="v.c" [(model)]="m.c"></n-country-lookup></label>
+        <label>CUSTOMER: <n-customer-lookup [(value)]="v.C" [(model)]="m.C"></n-customer-lookup></label>
+        <label>HANDLER: <n-handler-lookup [(value)]="v.h" [(model)]="m.h"></n-handler-lookup></label>
+        <label>REGISTRATION: <n-registration-lookup [(value)]="v.r" [(model)]="m.r"></n-registration-lookup></label>
         <pre>
 id={{ id }}
 utc={{ utc }}

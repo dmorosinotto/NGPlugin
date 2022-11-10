@@ -14,3 +14,6 @@ export * from "./lib/n-flight-qualification-lookup.component";
 export * from "./lib/n-flight-type-lookup.component";
 export * from "./lib/n-service-type-lookup.component";
 export * from "./lib/n-country-lookup.component";
+export * from "./lib/n-customer-lookup.component";
+export * from "./lib/n-handler-lookup.component";
+export * from "./lib/n-registration-lookup.component";

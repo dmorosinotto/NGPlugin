@@ -153,6 +153,76 @@ export class FormlyPageComponent {
                 change: (field, event) => console.error("AIRPORT SELECTED", field.key, "->", event),
             },
         },
+        {
+            key: "flightqual",
+            type: "flightqualification",
+            templateOptions: {
+                label: "Select FlightQualification",
+                // required: true,
+                // immutable: true,
+                // change: (field, event) => console.error("FlightQualification SELECTED", field.key, "->", event),
+            },
+        },
+        {
+            key: "flighttype",
+            type: "flighttype",
+            templateOptions: {
+                label: "Select FlightType",
+                // required: true,
+                // immutable: true,
+                // change: (field, event) => console.error("FlightType SELECTED", field.key, "->", event),
+            },
+        },
+        {
+            key: "servicetype",
+            type: "servicetype",
+            templateOptions: {
+                label: "Select ServiceType",
+                // required: true,
+                // immutable: true,
+                // change: (field, event) => console.error("ServiceType SELECTED", field.key, "->", event),
+            },
+        },
+        {
+            key: "country",
+            type: "country",
+            templateOptions: {
+                label: "Select Country",
+                // required: true,
+                // immutable: true,
+                // change: (field, event) => console.error("Country SELECTED", field.key, "->", event),
+            },
+        },
+        {
+            key: "customer",
+            type: "customer",
+            templateOptions: {
+                label: "Select Customers",
+                // required: true,
+                // immutable: true,
+                // change: (field, event) => console.error("Customers SELECTED", field.key, "->", event),
+            },
+        },
+        {
+            key: "handler",
+            type: "handler",
+            templateOptions: {
+                label: "Select Handler",
+                // required: true,
+                // immutable: true,
+                // change: (field, event) => console.error("Handler SELECTED", field.key, "->", event),
+            },
+        },
+        {
+            key: "registration",
+            type: "registration",
+            templateOptions: {
+                label: "Select Registration",
+                // required: true,
+                // immutable: true,
+                // change: (field, event) => console.error("Registration SELECTED", field.key, "->", event),
+            },
+        },
     ];
 
     onSubmit(model: any) {
