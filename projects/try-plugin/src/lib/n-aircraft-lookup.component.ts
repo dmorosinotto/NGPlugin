@@ -19,6 +19,7 @@ export type AircraftModel = {
     LandingGearType: string;
     IsWithoutWheels: boolean;
     Selected: boolean;
+    // ig_pk: number;
 };
 
 export const formatAircraft = (m: AircraftModel | null) => (m ? `${m.Aircraft_Icao} (${m.Aircraft_Sub_Iata}) - ${m.Description}` : "");

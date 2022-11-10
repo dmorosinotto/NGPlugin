@@ -11,6 +11,9 @@ import {
     getIDAircraft,
     AirportModel,
     formatAirport,
+    formatFlightQualification,
+    getIDFlightQualification,
+    FlightQualificationModel,
 } from "@app/try-plugin";
 
 import { FormlyModule } from "@ngx-formly/core";
@@ -67,6 +70,17 @@ import { FormlyWrapperPanel } from "./fields/wrapper-panel.component";
                             formatter: formatAirport,
                             idField: "Airport_Icao",
                         } as LookupProps<AirportModel>,
+                    },
+                },
+                {
+                    name: "flightqualification",
+                    extends: "lookup",
+                    defaultOptions: {
+                        props: {
+                            lookup: "FlightQualification",
+                            formatter: formatFlightQualification,
+                            idField: getIDFlightQualification,
+                        } as LookupProps<FlightQualificationModel>,
                     },
                 },
             ],

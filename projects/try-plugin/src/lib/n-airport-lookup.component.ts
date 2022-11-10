@@ -9,7 +9,7 @@ export type AirportModel = {
     City: string;
     Country: string;
     Description: string;
-    ig_pk: number;
+    // ig_pk: number;
 };
 
 export const formatAirport = (m: AirportModel | null) => (m ? `${m.City} - ${m.Description}` : "");

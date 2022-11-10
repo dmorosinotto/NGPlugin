@@ -45,6 +45,7 @@ export abstract class NBaseLookupComponent<M = any, I = string, T = string> impl
         if (!this.type) {
             console.error("CAN'T INIT BaseLookup PLUGIN MISSING TYPE!!!", this.type);
         } else {
+            console.info("XXXXXXXXXXXX INIT", this.type, " HID: ", this.hid.nativeElement.outerHTML);
             //$(function () {
             this.init = $(this.txt.nativeElement).genericLookup({
                 type: this.type,
@@ -52,6 +53,7 @@ export abstract class NBaseLookupComponent<M = any, I = string, T = string> impl
                 hiddenControl: $(this.hid.nativeElement),
                 remote: false, //this.remote,
                 idField: (model: M | null) => {
+                    console.info("yyyyyyyy IDFIELD ", this.type, ": ", this._hidFn?.toString());
                     const value = model == null ? null : this._hidFn(model);
                     console.warn(this.constructor.name, "idField nativeElement", model, "->", value);
                     this._update(model, "");
@@ -60,6 +62,7 @@ export abstract class NBaseLookupComponent<M = any, I = string, T = string> impl
                 autocompleteOnLoad: true,
                 pageSize: 5, //this.pageSize,
                 selectedElement: (model: M | null) => {
+                    console.info("zzzzzzzz SELECTELEMENT ", this.type, ": ", this._txtFn?.toString());
                     const text = model == null ? "" : this._txtFn(model);
                     console.warn(
                         this.constructor.name,

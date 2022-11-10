@@ -8,6 +8,10 @@ import {
     NAirportLookupComponent,
     AircraftModel,
     AirportModel,
+    NFlightQualificationLookupComponent,
+    NFlightTypeLookupComponent,
+    NServiceTypeLookupComponent,
+    NCountryLookupComponent,
 } from "@app/try-plugin";
 
 @Component({
@@ -21,6 +25,10 @@ import {
         NGenericLookupComponent,
         NAircraftLookupComponent,
         NAirportLookupComponent,
+        NFlightQualificationLookupComponent,
+        NFlightTypeLookupComponent,
+        NServiceTypeLookupComponent,
+        NCountryLookupComponent,
     ],
     template: `
         <p>form-page works!</p>
@@ -43,14 +51,22 @@ import {
                     [(value)]="air"
                 ></n-generic-lookup
             ></label>
-            <label>AIRPORT: <n-airport-lookup [(value)]="air"></n-airport-lookup></label>
-            <label>AIRCRAFT: <n-aircraft-lookup formControlName="aircraft" [(model)]="m.a" [(value)]="id"></n-aircraft-lookup></label>
+            <hr />
+            <label>AIR: <n-airport-lookup [(value)]="air"></n-airport-lookup></label>
+            <label>ID: <n-aircraft-lookup formControlName="aircraft" [(model)]="m.a" [(value)]="id"></n-aircraft-lookup></label>
+            <label>FC: <n-date-picker [formControl]="fc" [(value)]="utc"></n-date-picker></label>
+            <label>disabled=<input type="checkbox" (input)="toggleDisable()" /> {{ fc.disabled }} </label>
+            <button type="reset" (click)="id = ''; utc = ''; air = ''">RESET</button>
         </form>
-        <label>FC: <n-date-picker [formControl]="fc" [(value)]="utc"></n-date-picker></label>
-        <label>disabled=<input type="checkbox" (input)="toggleDisable()" /> {{ fc.disabled }} </label>
-        <hr />
         <n-generic-lookup type="Aircraft" idField="Aircraft_Sub_Iata" [(ngModel)]="id"></n-generic-lookup>
-        <button type="reset" (click)="id = ''; utc = ''; air = ''">RESET</button>
+        <hr />
+        <h2>TEST n-XXX-lookup</h2>
+        <label>AIRPORT: <n-airport-lookup [(value)]="v.p" [(model)]="m.p"></n-airport-lookup></label>
+        <label>AIRCRAFT: <n-aircraft-lookup [(value)]="v.f" [(model)]="m.f"></n-aircraft-lookup></label>
+        <label>FLIGHT QUAL: <n-flight-qualification-lookup [(value)]="v.fq" [(model)]="m.fq"></n-flight-qualification-lookup></label>
+        <label>FLIGHT TYPE: <n-flight-type-lookup [(value)]="v.ft" [(model)]="m.ft"></n-flight-type-lookup></label>
+        <label>SERVICE TYPE: <n-service-type-lookup [(value)]="v.st" [(model)]="m.st"></n-service-type-lookup></label>
+        <label>COUNTRY: <n-country-lookup [(value)]="v.c" [(model)]="m.c"></n-country-lookup></label>
         <pre>
 id={{ id }}
 utc={{ utc }}
@@ -59,6 +75,7 @@ air={{ air }}
 frm={{ frm.value | json }}
 -----------------------
 m={{ m | json }} 
+v={{ v | json }} 
 -----------------------
 fc={{ fc.value }}
 </pre>
@@ -81,6 +98,7 @@ export class FormPageComponent {
     public utc!: string;
     public air!: string | null;
     public m: any = {};
+    public v: any = { fq: null, ft: null, st: null, c: null };
 
     toggleDisable() {
         if (this.fc.disabled) {
