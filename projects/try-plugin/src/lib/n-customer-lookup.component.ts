@@ -15,7 +15,7 @@ export type CustomerModel = {
 };
 
 export const formatCustomer = (m: CustomerModel | null) => (m ? `${m.CustomerUser} - ${m.CorporateName1}` : "");
-export const getIDCustomer = (m: CustomerModel | null) => m?.Code ?? 0;
+export const getIDCustomer = (m: CustomerModel | null) => m?.Code ?? 0; // "Code" as const;
 
 @Component({
     selector: "n-customer-lookup",

@@ -13,7 +13,7 @@ export type AirportModel = {
 };
 
 export const formatAirport = (m: AirportModel | null) => (m ? `${m.City} - ${m.Description}` : "");
-export const getIDAirport = (m: AirportModel | null) => m?.Airport ?? "";
+export const getIDAirport = "Airport" as const;
 
 @Component({
     selector: "n-airport-lookup",
@@ -24,7 +24,7 @@ export const getIDAirport = (m: AirportModel | null) => m?.Airport ?? "";
     providers: [{ provide: NG_VALUE_ACCESSOR, useExisting: NAirportLookupComponent, multi: true }],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class NAirportLookupComponent extends NBaseLookupComponent<AirportModel, AirportModel["Airport"]> {
+export class NAirportLookupComponent extends NBaseLookupComponent<AirportModel, AirportModel[typeof getIDAirport]> {
     protected _txtFn = formatAirport;
     protected _hidFn = getIDAirport;
 

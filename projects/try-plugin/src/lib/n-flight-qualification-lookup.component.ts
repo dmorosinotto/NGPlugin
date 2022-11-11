@@ -11,7 +11,7 @@ export type FlightQualificationModel = {
 };
 
 export const formatFlightQualification = (m: FlightQualificationModel | null) => (m ? `${m.FLIGHT_QUALIFICATION} - ${m.DESCRIPTION}` : "");
-export const getIDFlightQualification = (m: FlightQualificationModel | null) => m?.FLIGHT_QUALIFICATION ?? "";
+export const getIDFlightQualification = "FLIGHT_QUALIFICATION" as const;
 
 @Component({
     selector: "n-flight-qualification-lookup",
@@ -24,7 +24,7 @@ export const getIDFlightQualification = (m: FlightQualificationModel | null) => 
 })
 export class NFlightQualificationLookupComponent extends NBaseLookupComponent<
     FlightQualificationModel,
-    FlightQualificationModel["FLIGHT_QUALIFICATION"]
+    FlightQualificationModel[typeof getIDFlightQualification]
 > {
     protected _txtFn = formatFlightQualification;
     protected _hidFn = getIDFlightQualification;

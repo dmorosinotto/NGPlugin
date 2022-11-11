@@ -87,10 +87,26 @@ export class FormlyPageComponent {
                 },
             },
         },
-        lookupField<AircraftModel>("Select generic aereo", "aereo", {
-            lookup: "Aircraft",
-            idField: "Aircraft_Sub_Iata",
-            formatter: (m) => `${m?.Aircraft_Icao} - ${m?.Description}`,
+        lookupField("strandard", "Aircraft", "standard lookup -> Aircraft", {
+            change(field, event) {
+                console.log(event.model);
+            },
+        }),
+        // lookupField<number>("custom", "MIOTPO", "custom lookup", {
+        //     formatter(m) {
+        //         return m?.toString() || "";
+        //     },
+        //     idField(m) {
+        //         return JSON.stringify(m);
+        //     },
+        // }),
+        lookupField("aereo", "Aircraft", "Select generic aereo", {
+            // lookup: "Aircraft",
+            // idField: "Aircraft_Sub_Iata",
+            // formatter: (m) => `${m?.Aircraft_Icao} - ${m?.Description}`,
+            change(field, event) {
+                console.log(event.model, event.value);
+            },
         }),
         /*
         {
@@ -132,7 +148,7 @@ export class FormlyPageComponent {
                 },
             },
         } as FormlyLookupFieldConfig<AirportModel>,
-        // lookupField("Select generic airport", "airport", { lookup: "Airport", idField: "Airport"}),
+        // lookupField("Airport", "Select generic airport", "airport", { lookup: "Airport", idField: "Airport"}),
         {
             key: "aereo",
             type: "aircraft",

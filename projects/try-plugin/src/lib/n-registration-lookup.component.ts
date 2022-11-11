@@ -19,7 +19,7 @@ export type RegistrationModel = {
 };
 
 export const formatRegistration = (m: RegistrationModel | null) => (m ? `${m.Registration} - ${m.AircraftDescription}` : "");
-export const getIDRegistration = (m: RegistrationModel | null) => m?.Registration ?? "";
+export const getIDRegistration = "Registration" as const;
 
 @Component({
     selector: "n-registration-lookup",
@@ -30,7 +30,7 @@ export const getIDRegistration = (m: RegistrationModel | null) => m?.Registratio
     providers: [{ provide: NG_VALUE_ACCESSOR, useExisting: NRegistrationLookupComponent, multi: true }],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class NRegistrationLookupComponent extends NBaseLookupComponent<RegistrationModel, RegistrationModel["Registration"]> {
+export class NRegistrationLookupComponent extends NBaseLookupComponent<RegistrationModel, RegistrationModel[typeof getIDRegistration]> {
     protected _txtFn = formatRegistration;
     protected _hidFn = getIDRegistration;
 

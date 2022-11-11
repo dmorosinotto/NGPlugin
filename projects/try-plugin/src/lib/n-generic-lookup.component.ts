@@ -14,7 +14,7 @@ import { NBaseLookupComponent } from "./n-base-lookup.component";
 })
 export class NGenericLookupComponent<M = any, K extends keyof M = keyof M> extends NBaseLookupComponent<M, M[K]> implements OnInit {
     protected _txtFn!: (model: M | null) => string;
-    protected _hidFn!: (model: M | null) => M[K];
+    protected _hidFn!: keyof M | ((model: M | null) => M[K]);
 
     constructor() {
         super();
@@ -24,11 +24,11 @@ export class NGenericLookupComponent<M = any, K extends keyof M = keyof M> exten
         if (!this.idField) {
             console.error("CAN'T INIT NGenericLookupComponent MISSING IDFIELD!!!", this.idField);
         } else {
-            this._hidFn = typeof this.idField === "function" ? this.idField : (m) => (m ? m[this.idField as K] : (null as M[K]));
+            this._hidFn = this.idField;
             if (typeof this.formatter === "function") {
                 this._txtFn = this.formatter;
             } else {
-                this._txtFn = (m) => (this._hidFn(m) || "") as string;
+                this._txtFn = (m) => ((typeof this._hidFn === "function" ? this._hidFn(m) : m?.[this._hidFn]) || "") as string;
             }
         }
         console.warn(this.constructor.name, "after ngOnInit SET FN", this._txtFn, this._hidFn);

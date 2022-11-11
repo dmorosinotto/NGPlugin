@@ -10,7 +10,7 @@ export type FlightTypeModel = {
 };
 
 export const formatFlightType = (m: FlightTypeModel | null) => (m ? `${m.GA_FLIGHT_TYPE} - ${m.DESCRIPTION}` : "");
-export const getIDFlightType = (m: FlightTypeModel | null) => m?.GA_FLIGHT_TYPE ?? "";
+export const getIDFlightType = "GA_FLIGHT_TYPE" as const;
 
 @Component({
     selector: "n-flight-type-lookup",
@@ -21,7 +21,7 @@ export const getIDFlightType = (m: FlightTypeModel | null) => m?.GA_FLIGHT_TYPE 
     providers: [{ provide: NG_VALUE_ACCESSOR, useExisting: NFlightTypeLookupComponent, multi: true }],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class NFlightTypeLookupComponent extends NBaseLookupComponent<FlightTypeModel, FlightTypeModel["GA_FLIGHT_TYPE"]> {
+export class NFlightTypeLookupComponent extends NBaseLookupComponent<FlightTypeModel, FlightTypeModel[typeof getIDFlightType]> {
     protected _txtFn = formatFlightType;
     protected _hidFn = getIDFlightType;
 

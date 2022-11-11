@@ -10,7 +10,7 @@ export type ServiceTypeModel = {
 };
 
 export const formatServiceType = (m: ServiceTypeModel | null) => (m ? `${m.Service_Type} - ${m.Description}` : "");
-export const getIDServiceType = (m: ServiceTypeModel | null) => m?.Service_Type ?? "";
+export const getIDServiceType = "Service_Type" as const;
 
 @Component({
     selector: "n-service-type-lookup",
@@ -21,7 +21,7 @@ export const getIDServiceType = (m: ServiceTypeModel | null) => m?.Service_Type 
     providers: [{ provide: NG_VALUE_ACCESSOR, useExisting: NServiceTypeLookupComponent, multi: true }],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class NServiceTypeLookupComponent extends NBaseLookupComponent<ServiceTypeModel, ServiceTypeModel["Service_Type"]> {
+export class NServiceTypeLookupComponent extends NBaseLookupComponent<ServiceTypeModel, ServiceTypeModel[typeof getIDServiceType]> {
     protected _txtFn = formatServiceType;
     protected _hidFn = getIDServiceType;
 

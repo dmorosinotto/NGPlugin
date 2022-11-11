@@ -23,7 +23,7 @@ export type AircraftModel = {
 };
 
 export const formatAircraft = (m: AircraftModel | null) => (m ? `${m.Aircraft_Icao} (${m.Aircraft_Sub_Iata}) - ${m.Description}` : "");
-export const getIDAircraft = (m: AircraftModel | null) => m?.Aircraft_Sub_Iata ?? "";
+export const getIDAircraft = "Aircraft_Sub_Iata" as const; //(m: AircraftModel | null) => m?.Aircraft_Sub_Iata ?? "";
 
 @Component({
     selector: "n-aircraft-lookup",
@@ -34,7 +34,10 @@ export const getIDAircraft = (m: AircraftModel | null) => m?.Aircraft_Sub_Iata ?
     providers: [{ provide: NG_VALUE_ACCESSOR, useExisting: NAircraftLookupComponent, multi: true }],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class NAircraftLookupComponent extends NBaseLookupComponent<AircraftModel, AircraftModel["Aircraft_Sub_Iata"]> {
+export class NAircraftLookupComponent extends NBaseLookupComponent<
+    AircraftModel,
+    AircraftModel[typeof getIDAircraft] //"Aircraft_Sub_Iata"
+> {
     protected _txtFn = formatAircraft;
     protected _hidFn = getIDAircraft;
 

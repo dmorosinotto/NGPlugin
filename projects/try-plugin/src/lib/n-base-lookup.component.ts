@@ -1,13 +1,19 @@
 import { AfterViewInit, OnDestroy, Directive, ElementRef, EventEmitter, Input, Output, ViewChild } from "@angular/core";
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
+
 declare var $: any;
-export type LookupChangeEvent<M = any, I = string, T = string> = { text: T | ""; value: I | null; model: M | null; old: M | null };
+export type LookupChangeEvent<M = unknown, I = any, T = string> = { text: T | ""; value: I | null; model: M | null; old: M | null };
+export type LookupColumn = { headerText: string; key: string; width: string };
+export type LookupParameters = null | { parameters: string };
+
 @Directive(/*{
     selector: "n-base-lookup",
     standalone: true,
+    // templateUrl: "./n-base-lookup.component.html", //IL TEMPLATE VA SPECIFICATO SULLA @Component OSSIA LA CLASSE EREDITATA
+    // styleUrls: ["./n-base-lookup.component.css"], //GLI STYLE VANNO SPECIFICATI SULLA @Component OSSIA LA CLASSE EREDITATA
     // providers: [{ provide: NG_VALUE_ACCESSOR, useExisting: NBaseLookupComponent, multi: true }], //PURTROPPO QUESTO NON FUNZIONA SULLA ABSTRACT DEVO FARE IL PROVIDER NELLA CLASSE EREDITARE
 }*/)
-export abstract class NBaseLookupComponent<M = any, I = string, T = string> implements AfterViewInit, OnDestroy, ControlValueAccessor {
+export abstract class NBaseLookupComponent<M = unknown, I = any, T = string> implements AfterViewInit, OnDestroy, ControlValueAccessor {
     constructor() {
         console.log(this.constructor.name, "on ctor", this.txt?.nativeElement ?? "NOT READY!"); //NOT READY
     }
@@ -51,16 +57,15 @@ export abstract class NBaseLookupComponent<M = any, I = string, T = string> impl
                 type: this.type,
                 button: $(this.btn.nativeElement),
                 hiddenControl: $(this.hid.nativeElement),
-                remote: false, //this.remote,
+
                 idField: (model: M | null) => {
                     console.info("yyyyyyyy IDFIELD ", this.type, ": ", this._hidFn?.toString());
-                    const value = model == null ? null : this._hidFn(model);
+                    const value = model == null ? null : typeof this._hidFn === "function" ? this._hidFn(model) : (model[this._hidFn] as I);
                     console.warn(this.constructor.name, "idField nativeElement", model, "->", value);
                     this._update(model, "");
                 },
                 autocomplete: true,
                 autocompleteOnLoad: true,
-                pageSize: 5, //this.pageSize,
                 selectedElement: (model: M | null) => {
                     console.info("zzzzzzzz SELECTELEMENT ", this.type, ": ", this._txtFn?.toString());
                     const text = model == null ? "" : this._txtFn(model);
@@ -94,6 +99,17 @@ export abstract class NBaseLookupComponent<M = any, I = string, T = string> impl
                         this.txt.nativeElement.value
                     );
                 },
+                maxDigit: this.maxDigit,
+                url: this.url,
+                urlAutocomplete: this.urlAutocomplete,
+                getCustomColumns: this.getCustomColumns,
+                getRuntimeParameters: this.getRuntimeParameters,
+                datasourceParameters: this.datasourceParameters,
+                remote: this.remote,
+                loggerName: this.loggerName,
+                IcaoIataOrder: this.IcaoIataOrder,
+                gridPlaceholder: this.gridPlaceholder,
+                pageSize: this.pageSize,
             });
             //});
         }
@@ -116,9 +132,19 @@ export abstract class NBaseLookupComponent<M = any, I = string, T = string> impl
             }
     }
 
-    @Input() type!: string; // = "Aircraft";
-    // @Input() pageSize?: number = 5;
-    // @Input() remote?: boolean = false;
+    @Input() type!: string; // UNICO PARAMETRO OBBLIGATORIO !!!;
+    // LISTA PARAMETRI OPZIONALI PER FARE LOOKUP CUSTOM FUORI STANDARD
+    @Input() maxDigit?: number; //NUMERO DI CARATTERI NECESSARI PRIMA DI FAR AUTOCOMPLETE
+    @Input() url?: string; //URL CUSTOM PER RITORNARE LISTA RICERCA PER RIMEPIRE GRIGLIA
+    @Input() urlAutocomplete?: string; //URL CUSTOM PER FARE L'AUTOCOMPLETE QUANDO DIGITO
+    @Input() getCustomColumns?: (colsToModify: Array<LookupColumn>, type?: string) => void; //BISOGNA FARE push DELLE COLONNE SUL PARAMETRO colsToModify
+    @Input() getRuntimeParameters?: () => LookupParameters; //PARAMETRI PASSATI IN QS DEFINITI A RUNTIME (SEPARATI DA '|')
+    @Input() datasourceParameters?: string; //PARAMETRO AGGIUNTIVO FISSATO AGGIUNTO IN QS ACCODATO '|' + getRuntimeParameters.parameters
+    @Input() remote?: boolean = false; //GESTIONE DEI FILTRI IN REMOTE?!
+    @Input() loggerName?: string = "Application"; //ASSURDO PASSARLO DAL CLIENT
+    @Input() IcaoIataOrder?: "IcaoIata" | "IataIcao" = "IcaoIata"; //ORDINE IATA/ICAO SU Aircraft?
+    @Input() gridPlaceholder?: string; //"XYZ" #ID DEL <div id="XYZ"> USATO PER LA MODALE CUSTOM
+    @Input() pageSize?: number; //=20;
 
     @Input() set model(model: M | null) {
         if (model === undefined) {
@@ -164,7 +190,7 @@ export abstract class NBaseLookupComponent<M = any, I = string, T = string> impl
     private _value?: I | null;
 
     protected abstract _txtFn: (model: M | null) => T;
-    protected abstract _hidFn: (model: M | null) => I;
+    protected abstract _hidFn: keyof M | ((model: M | null) => I);
 
     @Input() immutable?: boolean;
     @Output() change = new EventEmitter<LookupChangeEvent<M, I, T>>();
@@ -174,7 +200,7 @@ export abstract class NBaseLookupComponent<M = any, I = string, T = string> impl
         if (model === undefined) return; //EVITO INIZIALIZZAZIONE SE VALORE NON SPECIFICATO
         const old = this.model;
         const changed = !this._issame(old, model);
-        const value = model == null ? null : this._hidFn(model);
+        const value = model == null ? null : typeof this._hidFn === "function" ? this._hidFn(model) : (model[this._hidFn] as I);
         const text = model == null ? "" : this._txtFn(model);
         this._model = model;
         this._value = value;

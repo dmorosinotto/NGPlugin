@@ -11,7 +11,7 @@ export type HandlerModel = {
 };
 
 export const formatHandler = (m: HandlerModel | null) => (m ? `${m.SHORT_DESCRIPTION} - ${m.DESCRIPTION}` : "");
-export const getIDHandler = (m: HandlerModel | null) => m?.HANDLER ?? "";
+export const getIDHandler = "HANDLER" as const;
 
 @Component({
     selector: "n-handler-lookup",
@@ -22,7 +22,7 @@ export const getIDHandler = (m: HandlerModel | null) => m?.HANDLER ?? "";
     providers: [{ provide: NG_VALUE_ACCESSOR, useExisting: NHandlersLookupComponent, multi: true }],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class NHandlersLookupComponent extends NBaseLookupComponent<HandlerModel, HandlerModel["HANDLER"]> {
+export class NHandlersLookupComponent extends NBaseLookupComponent<HandlerModel, HandlerModel[typeof getIDHandler]> {
     protected _txtFn = formatHandler;
     protected _hidFn = getIDHandler;
 

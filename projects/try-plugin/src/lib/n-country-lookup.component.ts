@@ -10,7 +10,7 @@ export type CountryModel = {
 };
 
 export const formatCountry = (m: CountryModel | null) => (m ? `${m.Country} - ${m.Description}` : "");
-export const getIDCountry = (m: CountryModel | null) => m?.Country ?? "";
+export const getIDCountry = "Country" as const;
 
 @Component({
     selector: "n-country-lookup",
@@ -21,7 +21,7 @@ export const getIDCountry = (m: CountryModel | null) => m?.Country ?? "";
     providers: [{ provide: NG_VALUE_ACCESSOR, useExisting: NCountryLookupComponent, multi: true }],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class NCountryLookupComponent extends NBaseLookupComponent<CountryModel, CountryModel["Country"]> {
+export class NCountryLookupComponent extends NBaseLookupComponent<CountryModel, CountryModel[typeof getIDCountry]> {
     protected _txtFn = formatCountry;
     protected _hidFn = getIDCountry;
 
