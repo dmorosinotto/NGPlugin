@@ -2,9 +2,11 @@ import { AfterViewInit, OnDestroy, Directive, ElementRef, EventEmitter, Input, O
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
 
 declare var $: any;
-export type LookupChangeEvent<M = unknown, I = any, T = string> = { text: T | ""; value: I | null; model: M | null; old: M | null };
+export type LookupChangeEvent<M = any, I = any, T = string> = { text: T | ""; value: I | null; model: M | null; old: M | null };
 export type LookupColumn = { headerText: string; key: string; width: string };
 export type LookupParameters = null | { parameters: string };
+export type LookupFormatFn<M = any, T = string> = (model: M | null) => T;
+export type LookupGetIDFn<M = any, I = any> = keyof M | ((model: M | null) => I);
 
 @Directive(/*{
     selector: "n-base-lookup",
@@ -189,8 +191,8 @@ export abstract class NBaseLookupComponent<M = unknown, I = any, T = string> imp
     @Output() valueChange = new EventEmitter<I | null>();
     private _value?: I | null;
 
-    protected abstract _txtFn: (model: M | null) => T;
-    protected abstract _hidFn: keyof M | ((model: M | null) => I);
+    protected abstract _txtFn: LookupFormatFn<M, T>;
+    protected abstract _hidFn: LookupGetIDFn<M, I>;
 
     @Input() immutable?: boolean;
     @Output() change = new EventEmitter<LookupChangeEvent<M, I, T>>();

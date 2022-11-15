@@ -3,7 +3,7 @@ import { Component, NgModule } from "@angular/core";
 import { Routes, RouterModule } from "@angular/router";
 import { ReactiveFormsModule, FormGroup } from "@angular/forms";
 import { FormlyModule, FormlyFieldConfig, FormlyFormOptions } from "@ngx-formly/core";
-import { FormlyLookupFieldConfig, lookupField } from "@app/formly-custom";
+import { FormlyLookupFieldConfig, lookupCustomField, lookupField } from "@app/formly-custom";
 import { AircraftModel, AirportModel } from "@app/try-plugin";
 
 @Component({
@@ -87,23 +87,32 @@ export class FormlyPageComponent {
                 },
             },
         },
-        lookupField("strandard", "Aircraft", "standard lookup -> Aircraft", {
+        lookupField("standard", "Airport", "standard lookup -> Airport"),
+        lookupField("paese", "Country", "scegli paese standard -> Country", {
+            formatter: (m) => m?.Description ?? "",
             change(field, event) {
-                console.log(event.model);
+                console.log(field.key, "=", event.value, "->", event.model);
             },
         }),
-        // lookupField<number>("custom", "MIOTPO", "custom lookup", {
-        //     formatter(m) {
-        //         return m?.toString() || "";
-        //     },
-        //     idField(m) {
-        //         return JSON.stringify(m);
-        //     },
-        // }),
+        lookupCustomField<number>("custom", "MIOTPO", "custom lookup", {
+            formatter(m) {
+                return m?.toString() || "";
+            },
+            idField(m) {
+                return JSON.stringify(m);
+            },
+            url: "/lookup/YourCustomAPI_GetListNumbers",
+            urlAutocomplete: "/lookup/YourCustomAPI_GetNumberByID",
+            getCustomColumns(colsToModify, type?) {
+                colsToModify.push({ headerText: "n", key: "ID", width: "100%" });
+            },
+        }),
         lookupField("aereo", "Aircraft", "Select generic aereo", {
             // lookup: "Aircraft",
             // idField: "Aircraft_Sub_Iata",
             // formatter: (m) => `${m?.Aircraft_Icao} - ${m?.Description}`,
+            idField(model) {},
+            formatter: (m) => m?.Aircraft_Icao || "",
             change(field, event) {
                 console.log(event.model, event.value);
             },
@@ -134,11 +143,11 @@ export class FormlyPageComponent {
                 label: "Select generic scalo",
                 // required: false,
                 lookup: "Airport",
-                idField: "Airport",
+                idField: "Airport_Icao",
                 // immutable: true,
                 change: (field, event) => {
                     console.group("%cLOOKUP SELECTED change " + field.key, "background-color: cyan");
-                    console.error("CHANGE", field.key, event, "model=", JSON.stringify(field.model)); //, "field=", field);
+                    console.error("CHANGE", field.key, event, "model=", JSON.stringify(event.model)); //, "field=", field);
                     console.groupEnd();
                     //ESEMPIO DI SINCRONIZZAZIONE CAMPO scalo -> airport
                     // field.model.airport = event.model?.Airport_Icao;
