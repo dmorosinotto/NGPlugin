@@ -39,7 +39,7 @@ import { FormlyFieldAircraftLookup } from "./fields/field-aircraft.component";
 import { FormlyFieldAirportLookup } from "./fields/field-airport.component";
 
 import { FormlyFieldDate } from "./fields/field-date.component";
-import { FormlyFieldLookup, LookupProps } from "./fields/field-lookup.component";
+import { FormlyFieldLookup, LookupBaseProps } from "./fields/field-lookup.component";
 import { FormlyFieldText } from "./fields/field-text.component";
 import { FormlyWrapperPanel } from "./fields/wrapper-panel.component";
 
@@ -75,7 +75,7 @@ import { FormlyWrapperPanel } from "./fields/wrapper-panel.component";
                             lookup: "Aircraft",
                             formatter: formatAircraft,
                             idField: getIDAircraft,
-                        } as LookupProps<AircraftModel>,
+                        } as LookupBaseProps<AircraftModel>,
                     },
                 },
                 // { name: "airport", component: FormlyFieldAirportLookup, wrappers: ["panel"] },
@@ -87,7 +87,7 @@ import { FormlyWrapperPanel } from "./fields/wrapper-panel.component";
                             lookup: "Airport",
                             formatter: formatAirport,
                             idField: "Airport_Icao",
-                        } as LookupProps<AirportModel>,
+                        } as LookupBaseProps<AirportModel>,
                     },
                 },
                 {
@@ -98,7 +98,7 @@ import { FormlyWrapperPanel } from "./fields/wrapper-panel.component";
                             lookup: "FlightQualification",
                             formatter: formatFlightQualification,
                             idField: getIDFlightQualification,
-                        } as LookupProps<FlightQualificationModel>,
+                        } as LookupBaseProps<FlightQualificationModel>,
                     },
                 },
                 {
@@ -109,7 +109,7 @@ import { FormlyWrapperPanel } from "./fields/wrapper-panel.component";
                             lookup: "FlightType",
                             formatter: formatFlightType,
                             idField: getIDFlightType,
-                        } as LookupProps<FlightTypeModel>,
+                        } as LookupBaseProps<FlightTypeModel>,
                     },
                 },
                 {
@@ -120,7 +120,7 @@ import { FormlyWrapperPanel } from "./fields/wrapper-panel.component";
                             lookup: "ServiceType",
                             formatter: formatServiceType,
                             idField: getIDServiceType,
-                        } as LookupProps<ServiceTypeModel>,
+                        } as LookupBaseProps<ServiceTypeModel>,
                     },
                 },
                 {
@@ -131,7 +131,7 @@ import { FormlyWrapperPanel } from "./fields/wrapper-panel.component";
                             lookup: "Country",
                             formatter: formatCountry,
                             idField: getIDCountry,
-                        } as LookupProps<CountryModel>,
+                        } as LookupBaseProps<CountryModel>,
                     },
                 },
                 {
@@ -142,7 +142,7 @@ import { FormlyWrapperPanel } from "./fields/wrapper-panel.component";
                             lookup: "Customers",
                             formatter: formatCustomer,
                             idField: getIDCustomer,
-                        } as LookupProps<CustomerModel>,
+                        } as LookupBaseProps<CustomerModel>,
                     },
                 },
                 {
@@ -153,7 +153,7 @@ import { FormlyWrapperPanel } from "./fields/wrapper-panel.component";
                             lookup: "Handler",
                             formatter: formatHandler,
                             idField: getIDHandler,
-                        } as LookupProps<HandlerModel>,
+                        } as LookupBaseProps<HandlerModel>,
                     },
                 },
                 {
@@ -164,7 +164,7 @@ import { FormlyWrapperPanel } from "./fields/wrapper-panel.component";
                             lookup: "Registration",
                             formatter: formatRegistration,
                             idField: getIDRegistration,
-                        } as LookupProps<RegistrationModel>,
+                        } as LookupBaseProps<RegistrationModel>,
                     },
                 },
             ],
