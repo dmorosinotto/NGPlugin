@@ -104,7 +104,7 @@ export class FormPageComponent {
         aircraft: new FormControl("101"),
     });
     public id!: string | null;
-    public utc!: string;
+    public utc!: string | null;
     public air!: string | null;
     public m: any = {};
     public v: any = { fq: null, ft: null, st: null, c: null };

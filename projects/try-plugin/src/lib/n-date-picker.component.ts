@@ -6,14 +6,19 @@ import {
     EventEmitter,
     Input,
     OnDestroy,
+    OnChanges,
+    OnInit,
     Output,
+    SimpleChanges,
     ViewChild,
 } from "@angular/core";
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
 import { CommonModule } from "@angular/common";
+import { NBaseFormCtrlComponent } from "./n-base-formctrl.directive";
 declare var $: any;
 const UTC_FORMAT = "yy-mm-ddZ";
 type stringUTC = string;
+
 @Component({
     selector: "n-date-picker",
     standalone: true,
@@ -29,127 +34,68 @@ type stringUTC = string;
     providers: [{ provide: NG_VALUE_ACCESSOR, useExisting: NDatePickerComponent, multi: true }],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class NDatePickerComponent<D = Date | null, V = stringUTC | null, F = string>
-    implements AfterViewInit, OnDestroy, ControlValueAccessor
-{
+export class NDatePickerComponent extends NBaseFormCtrlComponent<stringUTC, Date> implements OnInit, OnChanges, OnDestroy, AfterViewInit {
     constructor() {
+        super();
         console.log(this.constructor.name, "on ctor", this.inp?.nativeElement ?? "NOT READY!");
     }
-    writeValue(value: any): void {
-        console.info(this.constructor.name, "writeValue", value);
-        this.value = value;
-    }
-    private _OnChange?: (_: any) => void;
-    registerOnChange(fn: (_: any) => void): void {
-        console.info(this.constructor.name, "registerOnChange", fn);
-        this._OnChange = fn;
-    }
-    private _OnTouhed?: () => void;
-    registerOnTouched(fn: () => void): void {
-        console.info(this.constructor.name, "registerOnTouched", fn);
-        this._OnTouhed = fn;
-    }
-    private _disabled = false;
-    setDisabledState(isDisabled: boolean): void {
-        this._disabled = isDisabled;
-        console.info(this.constructor.name, "setDisabledState", isDisabled);
-        $(this.inp.nativeElement).datepicker("option", "disabled", this._disabled);
-        $(this.inp.nativeElement).prop("disabled", this._disabled);
+
+    override _onDisabling(disabled: boolean): boolean {
+        //CUSTOM LOGIC TO HANDLE disabled AND RETURN disabled FLAG
+        $(this.inp.nativeElement).datepicker("option", "disabled", disabled);
+        $(this.inp.nativeElement).prop("disabled", disabled);
+        return super._onDisabling(disabled);
     }
 
-    @Input() set model(model: D) {
+    protected _parseValueToModel(value: string | null): Date | null {
+        //CUSTOM LOGIC TO SET INTERNAL _model WHEN value IS CHANGE/SETED
+        return value ? $.datepicker.parseDate(UTC_FORMAT, value) : null;
+    }
+    protected _formatModelToValue(model: Date | null): string | null {
+        //CUSTOM LOGIC TO SET BACK value WHEN INTERNAL _model IS CHANGED
+        return model ? $.datepicker.formatDate(UTC_FORMAT, model) : null;
+    }
+
+    @Input() format = "dd/mm/yy"; //FORMAT STRING TO SHOW DATE
+    //ESPOSE THE INTERNAL MODEL FOR TWO-WAY DATABIND [(model)]
+    @Input() set model(model: Date | null) {
         if (model === undefined) {
             console.info(this.constructor.name, "IGNORE MODEL NOT SET === undefined");
             return;
         }
         if (!this._issame(this._model, model)) {
             console.info(this.constructor.name, "SET MODEL", model);
-            this._update(model, true, "model");
+            this._nofixinp = false;
+            this._update("model", model);
         } else {
             console.info(this.constructor.name, model, "MODEL IS SAME");
         }
     }
-    get model(): D {
+    get model(): Date | null {
         return this._model!;
     }
-    private _model?: D;
-    @Output() modelChange = new EventEmitter<D>();
+    @Output() modelChange = new EventEmitter<Date | null>();
 
-    @Input() format = "dd/mm/yy";
-    @Input() set value(value: V) {
-        if (value === undefined) {
-            console.info(this.constructor.name, "IGNORE MODEL NOT SET === undefined");
-            return;
-        }
-        if (!this._issame(this._value, value)) {
-            console.info(this.constructor.name, "SET VALUE", value);
-            var model = value ? $.datepicker.parseDate(UTC_FORMAT, value) : null;
-            this._update(model, true, "value");
-            // if (D != null) {
-            //     this._value = value;
-            //     this.valueUTCChange.emit(value);
-            //     setTimeout(() => (this.inp.nativeElement.value = $.datepicker.formatDate(this.format, D)));
-            // }
-        } else {
-            console.info(this.constructor.name, value, "VALUE IS SAME");
-        }
-    }
-    get value(): V {
-        return this._value!;
-    }
-    @Output() valueChange = new EventEmitter<V>();
-    private _value?: V;
-
-    private _formatterFn = (model: D): F => $.datepicker.formatDate(this.format, model);
-    private _parserFn = (view: F): D | undefined => {
-        try {
-            return $.datepicker.parseDate(this.format, view);
-        } catch (err) {
-            // console.info("PARSING ERROR", err);
-            return undefined;
-        }
-    };
-
-    @Input() immutable?: boolean;
-    @Output() change = new EventEmitter<{ text: F; value: V; model: D; old: D }>();
-    private _issame = (old: any, cur: any) => (this.immutable && old === cur) || JSON.stringify(old) == JSON.stringify(cur);
-    private _update(model: D | undefined, setinp: boolean = true, noemit: "" | "model" | "value" = "") {
-        if (model === undefined) return; //EVITO INIZIALIZZAZIONE SE VALORE NON SPECIFICATO
+    private _nofixinp = false;
+    @Output() change = new EventEmitter<{ text: string; value: stringUTC | null; model: Date | null; old: Date | null }>();
+    override _onChanging(from: "value" | "model", changed: boolean): boolean {
         const old = this.model;
-        const changed = !this._issame(old, model);
-        if (model === null) {
-            this._model = model; //null
-            this._value = null as any;
-        } else {
-            this._model = model;
-            this._value = $.datepicker.formatDate(UTC_FORMAT, model);
-        }
-        const text = this._formatterFn(model);
-        if (noemit != "model") {
+        const text = $.datepicker.formatDate(this.format, this.model);
+        if (from != "model") {
             console.info(this.constructor.name, "EMIT model CHANGE");
-            this.modelChange.emit(model);
-        }
-        if (noemit != "value") {
-            console.info(this.constructor.name, "EMIT value CHANGE");
-            this.valueChange.emit(this._value);
-        }
-        if (this._OnChange && changed) {
-            console.info(this.constructor.name, "EMIT _OnChange", this._value);
-            this._OnChange(this._value);
-        }
-        if (this._OnTouhed && changed) {
-            console.info(this.constructor.name, "EMIT _OnTouhed");
-            this._OnTouhed();
+            this.modelChange.emit(this.model);
         }
         if (changed) {
-            this.change.emit({ value: this.value, text, model, old });
+            this.change.emit({ value: this.value, text, model: this.model, old });
         }
-        if (setinp) {
+        if (this._nofixinp) {
             setTimeout(() => (this.inp.nativeElement.value = text));
+            this._nofixinp = false;
         }
+        return changed;
     }
 
-    ngOnChange() {
+    ngOnChanges(changes: SimpleChanges) {
         console.log(this.constructor.name, "on ngOnChange", this.inp?.nativeElement ?? "NOT READY!");
     }
 
@@ -171,27 +117,16 @@ export class NDatePickerComponent<D = Date | null, V = stringUTC | null, F = str
     parse() {
         var inputText = this.inp.nativeElement.value;
         console.log(this.constructor.name, this.inp, "INPUT.value", inputText);
-        var model = this._parserFn(inputText);
-        if (model != null) {
-            // this.valueUTC = $.datepicker.formatDate(UTC_FORMAT, D);
-            this._update(model, false, "");
-        } else if (!inputText) {
-            this._update(null as any, false, "");
+        var model: Date | undefined;
+        try {
+            model = $.datepicker.parseDate(this.format, inputText);
+        } catch (err) {
+            // console.info("PARSING ERROR", err);
+            model = undefined;
         }
-
-        //     $(this.inp.nativeElement)
-        //         .datepicker({
-        //             dateFormat: this.format,
-        //             showOn: "button",
-        //             disabled: false,
-        //             onSelect: (dateText: string, dp: any) => {
-        //
-        //                 console.log(dateText, "parse", parse);
-        //                 // this.birthday = parse;
-        //                 $(dp.input).datepicker("option", "disabled", !dateText);
-        //             },
-        //         })
-        //         .datepicker("option", "disabled", false);
+        // this.valueUTC = $.datepicker.formatDate(UTC_FORMAT, D);
+        this._nofixinp = true;
+        this._update("model", model || null);
     }
 
     dialog(e: MouseEvent) {
@@ -201,10 +136,11 @@ export class NDatePickerComponent<D = Date | null, V = stringUTC | null, F = str
             this.value,
             (...args: any[]) => {
                 console.log(this.constructor.name, "OnSelect", args);
-                var model = $.datepicker.parseDate(UTC_FORMAT, args[0]); //STRING FORMATTED
-                var model = $(args[1].input).datepicker("getDate"); //DATE OBJECT LT
+                //var model = $.datepicker.parseDate(UTC_FORMAT, args[0]); //STRING FORMATTED
+                var model: Date | null = $(args[1].input).datepicker("getDate"); //DATE OBJECT LT
                 // this.valueUTC = args[0]; //STRING FORMATTED
-                this._update(model, true, "");
+                this._nofixinp = false;
+                this._update("model", model);
                 console.log(this.constructor.name, "model", model);
             },
             { showButtonPanel: true, dateFormat: UTC_FORMAT, altField: this.inp.nativeElement, altFormat: this.format },
