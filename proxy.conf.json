@@ -38,7 +38,7 @@
         "secure": false,
         "changeOrigin": true,
         "pathRewrite": {
-            "^/api/backofficeapi/CallAPI": "http://acdmportal-client.testdom.local/api/backofficeapi/Logout"
+            "^/api/backofficeapi/Logout": "http://acdmportal-client.testdom.local/api/backofficeapi/Logout"
         }
     }
 }
